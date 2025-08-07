@@ -3,289 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌸 Kawaii To-Do List 🌸</title>
+    <title>Kawaii To-Do List 🌸</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        body {
-            font-family: 'Quicksand', 'Comic Sans MS', cursive;
-            background: linear-gradient(135deg, #fce2e6 0%, #e8f4fd 50%, #f0e6ff 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;400;700&display=swap');
+        
+        * {
+            font-family: 'Comic Neue', cursive;
         }
-
-        .floating-hearts {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
+        
+        .kawaii-gradient {
+            background: linear-gradient(135deg, #fce7f3 0%, #e0e7ff 50%, #dcfce7 100%);
         }
-
-        .heart {
-            position: absolute;
-            font-size: 1.5rem;
-            opacity: 0.1;
-            animation: float 8s ease-in-out infinite;
+        
+        .kawaii-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 192, 203, 0.3);
         }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(10deg); }
-        }
-
-        .puzzle-piece {
-            cursor: grab;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            user-select: none;
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .puzzle-piece:active {
-            cursor: grabbing;
-            transform: scale(1.1);
-        }
-
-        .puzzle-piece:hover {
-            transform: scale(1.05);
-            filter: brightness(1.1);
-        }
-
-        .puzzle-drop-zone {
-            border: 3px dashed #f472b6;
-            background: rgba(244, 114, 182, 0.1);
-            transition: all 0.3s ease;
-            border-radius: 20px;
-        }
-
-        .puzzle-drop-zone.active {
-            border-color: #ec4899;
-            background: rgba(236, 72, 153, 0.2);
-            transform: scale(1.02);
-        }
-
-        .puzzle-slot {
-            width: 70px;
-            height: 70px;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            border: 2px dashed #f472b6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(244, 114, 182, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .puzzle-slot.filled {
-            border-color: #10b981;
-            background: rgba(16, 185, 129, 0.2);
-        }
-
-        .task-item {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: slideIn 0.5s ease-out;
-        }
-
-        .task-item:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(244, 114, 182, 0.3);
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
+        
         .bounce {
-            animation: bounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            animation: bounce 2s infinite;
         }
-
-        @keyframes bounce {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
+        
         .sparkle {
-            animation: sparkle 2s ease-in-out infinite;
+            animation: sparkle 1.5s ease-in-out infinite;
         }
-
+        
+        .float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .wiggle {
+            animation: wiggle 0.5s ease-in-out;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
         @keyframes sparkle {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
         }
-
-        .social-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
-
-        .social-btn:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .kawaii-input {
-            transition: all 0.3s ease;
-        }
-
-        .kawaii-input:focus {
-            transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(244, 114, 182, 0.3);
-        }
-
-        .completed-task {
-            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-            opacity: 0.7;
-        }
-
-        .completed-task .task-text {
-            text-decoration: line-through;
-            color: #9ca3af;
-        }
-
-        .mascot {
-            animation: wiggle 3s ease-in-out infinite;
-        }
-
+        
         @keyframes wiggle {
             0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(5deg); }
-            75% { transform: rotate(-5deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
         }
-
-        .cloud {
-            animation: drift 15s ease-in-out infinite;
+        
+        .game-canvas {
+            border: 3px solid #fbbf24;
+            border-radius: 15px;
+            background: linear-gradient(to bottom, #87ceeb 0%, #98fb98 100%);
         }
-
-        @keyframes drift {
-            0%, 100% { transform: translateX(0) translateY(0); }
-            25% { transform: translateX(10px) translateY(-5px); }
-            50% { transform: translateX(-5px) translateY(-10px); }
-            75% { transform: translateX(-10px) translateY(5px); }
+        
+        .social-btn {
+            transition: all 0.3s ease;
         }
-
+        
+        .social-btn:hover {
+            transform: scale(1.05);
+        }
+        
         .nav-link {
             transition: all 0.3s ease;
         }
-
+        
         .nav-link:hover {
             transform: translateY(-2px);
-            color: #ec4899;
         }
-
-        .nav-link.active {
-            color: #ec4899;
-            border-bottom: 2px solid #ec4899;
-        }
-
-        .hamburger {
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .nav-menu {
-                display: none;
-            }
-            .nav-menu.active {
-                display: flex;
-                flex-direction: column;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: rgba(251, 207, 232, 0.95);
-                backdrop-filter: blur(10px);
-                border-radius: 0 0 20px 20px;
-                padding: 1rem;
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            }
-            .hamburger {
-                display: block;
-            }
-        }
-
-        .page-transition {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0.5rem;
-        }
-
-        .calendar-day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
+        
+        .task-card {
             transition: all 0.3s ease;
         }
-
-        .calendar-day:hover {
-            transform: scale(1.1);
-            background: rgba(244, 114, 182, 0.2);
+        
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .completed-task {
+            opacity: 0.7;
+            text-decoration: line-through;
+        }
+        
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
         }
     </style>
 </head>
 <body>
-    <div class="floating-hearts" id="floating-hearts"></div>
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // Floating hearts background
-        const FloatingHearts = () => {
+        // Game Component
+        const RunnerGame = ({ onGameComplete }) => {
+            const canvasRef = useRef(null);
+            const gameStateRef = useRef({
+                isRunning: false,
+                gameTime: 0,
+                girl: { x: 50, y: 200, jumping: false, jumpHeight: 0 },
+                obstacles: [],
+                score: 0
+            });
+            const animationRef = useRef();
+
             useEffect(() => {
-                const container = document.getElementById('floating-hearts');
-                const hearts = ['💖', '💕', '💗', '🌸', '✨', '🌟', '🦋', '🌺'];
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
                 
-                for (let i = 0; i < 20; i++) {
-                    const heart = document.createElement('div');
-                    heart.className = 'heart';
-                    heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-                    heart.style.left = Math.random() * 100 + '%';
-                    heart.style.top = Math.random() * 100 + '%';
-                    heart.style.animationDelay = Math.random() * 8 + 's';
-                    heart.style.animationDuration = (Math.random() * 4 + 6) + 's';
-                    container.appendChild(heart);
-                }
-            }, []);
+                const startGame = () => {
+                    gameStateRef.current.isRunning = true;
+                    gameStateRef.current.gameTime = 0;
+                    gameStateRef.current.obstacles = [];
+                    gameStateRef.current.girl = { x: 50, y: 200, jumping: false, jumpHeight: 0 };
+                    gameLoop();
+                };
 
-            return null;
-        };
+                const gameLoop = () => {
+                    if (!gameStateRef.current.isRunning) return;
+                    
+                    update();
+                    draw();
+                    
+                    gameStateRef.current.gameTime += 16;
+                    
+                    if (gameStateRef.current.gameTime >= 10000) {
+                        gameStateRef.current.isRunning = false;
+                        playSound();
+                        confetti({
+                            particleCount: 100,
+                            spread: 70,
+                            origin: { y: 0.6 }
+                        });
+                        onGameComplete();
+                        return;
+                    }
+                    
+                    animationRef.current = requestAnimationFrame(gameLoop);
+                };
 
-        // Sound effects
-        const playSound = (frequency = 800, duration = 0.1, type = 'sine') => {
-            try {
+                const update = () => {
+                    const state = gameStateRef.current;
+                    
+                    // Update girl jumping
+                    if (state.girl.jumping) {
+                        state.girl.jumpHeight += 8;
+                        if (state.girl.jumpHeight >= 80) {
+                            state.girl.jumping = false;
+                        }
+                    } else if (state.girl.jumpHeight > 0) {
+                        state.girl.jumpHeight -= 8;
+                        if (state.girl.jumpHeight < 0) state.girl.jumpHeight = 0;
+                    }
+                    
+                    // Spawn obstacles
+                    if (Math.random() < 0.01) {
+                        state.obstacles.push({ x: canvas.width, y: 220 });
+                    }
+                    
+                    // Update obstacles
+                    state.obstacles = state.obstacles.filter(obstacle => {
+                        obstacle.x -= 5;
+                        
+                        // Collision detection
+                        if (obstacle.x < state.girl.x + 30 && obstacle.x + 30 > state.girl.x &&
+                            obstacle.y < state.girl.y - state.girl.jumpHeight + 40 && obstacle.y + 40 > state.girl.y - state.girl.jumpHeight) {
+                            state.isRunning = false;
+                            alert('Game Over! Try again! 💔');
+                            return false;
+                        }
+                        
+                        return obstacle.x > -30;
+                    });
+                };
+
+                const draw = () => {
+                    const state = gameStateRef.current;
+                    
+                    // Clear canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Draw ground
+                    ctx.fillStyle = '#90EE90';
+                    ctx.fillRect(0, 250, canvas.width, 50);
+                    
+                    // Draw girl
+                    ctx.font = '30px Comic Neue';
+                    ctx.fillText('👧', state.girl.x, state.girl.y - state.girl.jumpHeight);
+                    
+                    // Draw obstacles (flower pots)
+                    state.obstacles.forEach(obstacle => {
+                        ctx.font = '25px Comic Neue';
+                        ctx.fillText('🌸', obstacle.x, obstacle.y);
+                    });
+                    
+                    // Draw timer
+                    ctx.fillStyle = '#FF69B4';
+                    ctx.font = '20px Comic Neue';
+                    ctx.fillText(`Time: ${Math.floor(state.gameTime / 1000)}s / 10s`, 10, 30);
+                    
+                    // Draw instructions
+                    ctx.fillStyle = '#8A2BE2';
+                    ctx.font = '16px Comic Neue';
+                    ctx.fillText('Press SPACE to jump! 🌸', canvas.width - 200, 30);
+                };
+
+                const handleKeyPress = (e) => {
+                    if (e.code === 'Space' && gameStateRef.current.isRunning) {
+                        e.preventDefault();
+                        if (!gameStateRef.current.girl.jumping && gameStateRef.current.girl.jumpHeight === 0) {
+                            gameStateRef.current.girl.jumping = true;
+                        }
+                    }
+                };
+
+                const handleTouch = (e) => {
+                    e.preventDefault();
+                    if (gameStateRef.current.isRunning) {
+                        if (!gameStateRef.current.girl.jumping && gameStateRef.current.girl.jumpHeight === 0) {
+                            gameStateRef.current.girl.jumping = true;
+                        }
+                    }
+                };
+
+                document.addEventListener('keydown', handleKeyPress);
+                canvas.addEventListener('touchstart', handleTouch);
+                
+                startGame();
+
+                return () => {
+                    document.removeEventListener('keydown', handleKeyPress);
+                    canvas.removeEventListener('touchstart', handleTouch);
+                    if (animationRef.current) {
+                        cancelAnimationFrame(animationRef.current);
+                    }
+                };
+            }, [onGameComplete]);
+
+            const playSound = () => {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
@@ -293,469 +270,359 @@
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
                 
-                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-                oscillator.type = type;
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
                 
-                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
                 
                 oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + duration);
-            } catch (e) {
-                console.log('Audio not supported');
-            }
-        };
-
-        // Confetti animation
-        const createConfetti = () => {
-            if (typeof confetti !== 'undefined') {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    colors: ['#ff6b9d', '#fce2e6', '#a8e6cf', '#dda0dd', '#ffb6c1']
-                });
-            }
-        };
-
-        // Puzzle Piece Component
-        const PuzzlePiece = ({ piece, onDragStart, onDragEnd }) => {
-            const [isDragging, setIsDragging] = useState(false);
-            const [position, setPosition] = useState({ x: piece.startX, y: piece.startY });
-            const pieceRef = useRef(null);
-
-            const handleMouseDown = (e) => {
-                setIsDragging(true);
-                onDragStart(piece.id);
-                
-                const rect = pieceRef.current.getBoundingClientRect();
-                const offsetX = e.clientX - rect.left;
-                const offsetY = e.clientY - rect.top;
-
-                const handleMouseMove = (e) => {
-                    const newX = e.clientX - offsetX;
-                    const newY = e.clientY - offsetY;
-                    setPosition({ x: newX, y: newY });
-                };
-
-                const handleMouseUp = (e) => {
-                    setIsDragging(false);
-                    onDragEnd(piece.id, e.clientX, e.clientY);
-                    document.removeEventListener('mousemove', handleMouseMove);
-                    document.removeEventListener('mouseup', handleMouseUp);
-                };
-
-                document.addEventListener('mousemove', handleMouseMove);
-                document.addEventListener('mouseup', handleMouseUp);
+                oscillator.stop(audioContext.currentTime + 0.3);
             };
 
             return (
-                <div
-                    ref={pieceRef}
-                    className={`puzzle-piece ${isDragging ? 'z-50' : 'z-10'}`}
-                    style={{
-                        left: position.x,
-                        top: position.y,
-                        background: piece.color,
-                        boxShadow: isDragging ? '0 10px 30px rgba(0,0,0,0.3)' : '0 4px 15px rgba(0,0,0,0.2)'
-                    }}
-                    onMouseDown={handleMouseDown}
-                >
-                    {piece.emoji}
+                <div className="text-center">
+                    <h3 className="text-2xl font-bold text-pink-600 mb-4">🌸 Kawaii Runner Game 🌸</h3>
+                    <p className="text-purple-600 mb-4">Help the kawaii girl jump over flower pots for 10 seconds!</p>
+                    <canvas 
+                        ref={canvasRef} 
+                        width={600} 
+                        height={300} 
+                        className="game-canvas mx-auto"
+                    />
+                    <p className="text-sm text-gray-600 mt-2">Desktop: Press SPACE | Mobile: Tap the game area</p>
+                </div>
+            );
+        };
+
+        // Sign In Page Component
+        const SignInPage = ({ onSignIn }) => {
+            const [showGame, setShowGame] = useState(false);
+
+            const handleSocialLogin = (provider) => {
+                playClickSound();
+                confetti({
+                    particleCount: 50,
+                    spread: 60,
+                    origin: { y: 0.8 }
+                });
+                setTimeout(() => onSignIn(), 1000);
+            };
+
+            const handleGameComplete = () => {
+                setTimeout(() => onSignIn(), 2000);
+            };
+
+            const playClickSound = () => {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            };
+
+            return (
+                <div className="min-h-screen kawaii-gradient flex items-center justify-center p-4">
+                    <div className="absolute inset-0 overflow-hidden">
+                        <div className="absolute top-10 left-10 text-4xl bounce">⭐</div>
+                        <div className="absolute top-20 right-20 text-3xl float">🌸</div>
+                        <div className="absolute bottom-20 left-20 text-3xl sparkle">💖</div>
+                        <div className="absolute bottom-10 right-10 text-4xl bounce">🦄</div>
+                        <div className="absolute top-1/2 left-5 text-2xl float">☁️</div>
+                        <div className="absolute top-1/3 right-5 text-2xl sparkle">🌙</div>
+                    </div>
+                    
+                    <div className="kawaii-card rounded-3xl p-8 max-w-2xl w-full shadow-2xl relative z-10">
+                        <div className="text-center mb-8">
+                            <h1 className="text-4xl font-bold text-pink-600 mb-2">
+                                Welcome to Kawaii World! 🌸
+                            </h1>
+                            <p className="text-purple-600 text-lg">
+                                Your adorable productivity companion awaits! ✨
+                            </p>
+                        </div>
+
+                        {!showGame ? (
+                            <div>
+                                <div className="space-y-4 mb-6">
+                                    <button 
+                                        onClick={() => handleSocialLogin('google')}
+                                        className="social-btn w-full bg-pink-100 hover:bg-pink-200 text-pink-700 font-semibold py-3 px-6 rounded-full flex items-center justify-center space-x-3"
+                                    >
+                                        <i className="fab fa-google text-xl"></i>
+                                        <span>Continue with Google</span>
+                                    </button>
+                                    
+                                    <button 
+                                        onClick={() => handleSocialLogin('github')}
+                                        className="social-btn w-full bg-purple-100 hover:bg-purple-200 text-purple-700 font-semibold py-3 px-6 rounded-full flex items-center justify-center space-x-3"
+                                    >
+                                        <i className="fab fa-github text-xl"></i>
+                                        <span>Continue with GitHub</span>
+                                    </button>
+                                    
+                                    <button 
+                                        onClick={() => handleSocialLogin('facebook')}
+                                        className="social-btn w-full bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold py-3 px-6 rounded-full flex items-center justify-center space-x-3"
+                                    >
+                                        <i className="fab fa-facebook text-xl"></i>
+                                        <span>Continue with Facebook</span>
+                                    </button>
+                                </div>
+
+                                <div className="text-center">
+                                    <p className="text-gray-600 mb-4">Or play our kawaii game to unlock! 🎮</p>
+                                    <button 
+                                        onClick={() => {
+                                            playClickSound();
+                                            setShowGame(true);
+                                        }}
+                                        className="bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-bold py-3 px-8 rounded-full transform hover:scale-105 transition-all duration-300"
+                                    >
+                                        🎮 Play Kawaii Runner Game! 🌸
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <RunnerGame onGameComplete={handleGameComplete} />
+                        )}
+                    </div>
                 </div>
             );
         };
 
         // Header Component
-        const Header = ({ currentPage, onNavigate, onLogout }) => {
+        const Header = ({ currentPage, setCurrentPage, onLogout }) => {
             const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
             const navItems = [
-                { id: 'home', label: 'Home', icon: 'fas fa-home' },
-                { id: 'bin', label: 'Bin', icon: 'fas fa-trash' },
-                { id: 'notes', label: 'Notes', icon: 'fas fa-sticky-note' },
-                { id: 'schedule', label: 'Schedule', icon: 'fas fa-calendar' },
-                { id: 'todo', label: 'To-Do List', icon: 'fas fa-list' },
-                { id: 'settings', label: 'Settings', icon: 'fas fa-cog' }
+                { id: 'home', label: 'Home', icon: 'fa-home' },
+                { id: 'todo', label: 'To-Do List', icon: 'fa-list' },
+                { id: 'notes', label: 'Notes', icon: 'fa-sticky-note' },
+                { id: 'schedule', label: 'Schedule', icon: 'fa-calendar' },
+                { id: 'bin', label: 'Bin', icon: 'fa-trash' },
+                { id: 'settings', label: 'Settings', icon: 'fa-cog' }
             ];
 
+            const playClickSound = () => {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            };
+
             return (
-                <header className="fixed top-0 left-0 right-0 z-40 bg-pink-200/90 backdrop-blur-sm shadow-lg">
-                    <div className="max-w-6xl mx-auto px-4">
+                <header className="fixed top-0 left-0 right-0 bg-pink-200 shadow-lg z-50">
+                    <div className="max-w-7xl mx-auto px-4">
                         <div className="flex items-center justify-between h-16">
                             <div className="flex items-center space-x-2">
                                 <span className="text-2xl">🌸</span>
-                                <h1 className="text-xl font-bold text-pink-600">Kawaii To-Do</h1>
+                                <h1 className="text-xl font-bold text-pink-700">Kawaii To-Do</h1>
                             </div>
 
                             {/* Desktop Navigation */}
-                            <nav className="nav-menu flex items-center space-x-6">
+                            <nav className="hidden md:flex items-center space-x-1">
                                 {navItems.map(item => (
                                     <button
                                         key={item.id}
-                                        onClick={() => onNavigate(item.id)}
-                                        className={`nav-link flex items-center space-x-2 px-3 py-2 rounded-lg ${
-                                            currentPage === item.id ? 'active' : ''
+                                        onClick={() => {
+                                            playClickSound();
+                                            setCurrentPage(item.id);
+                                        }}
+                                        className={`nav-link px-4 py-2 rounded-full flex items-center space-x-2 ${
+                                            currentPage === item.id 
+                                                ? 'bg-pink-300 text-pink-800' 
+                                                : 'text-pink-700 hover:bg-pink-100'
                                         }`}
                                     >
-                                        <i className={item.icon}></i>
+                                        <i className={`fas ${item.icon}`}></i>
                                         <span>{item.label}</span>
                                     </button>
                                 ))}
                                 <button
-                                    onClick={onLogout}
-                                    className="nav-link flex items-center space-x-2 px-3 py-2 rounded-lg text-red-500 hover:text-red-600"
+                                    onClick={() => {
+                                        playClickSound();
+                                        onLogout();
+                                    }}
+                                    className="nav-link px-4 py-2 rounded-full flex items-center space-x-2 text-pink-700 hover:bg-pink-100 ml-4"
                                 >
                                     <i className="fas fa-sign-out-alt"></i>
                                     <span>Logout</span>
                                 </button>
                             </nav>
 
-                            {/* Mobile Hamburger */}
+                            {/* Mobile Menu Button */}
                             <button
-                                className="hamburger text-pink-600"
                                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                className="md:hidden text-pink-700 hover:text-pink-900"
                             >
                                 <i className="fas fa-bars text-xl"></i>
                             </button>
+                        </div>
+                    </div>
 
-                            {/* Mobile Navigation */}
-                            {mobileMenuOpen && (
-                                <nav className="nav-menu active">
-                                    {navItems.map(item => (
-                                        <button
-                                            key={item.id}
-                                            onClick={() => {
-                                                onNavigate(item.id);
-                                                setMobileMenuOpen(false);
-                                            }}
-                                            className={`nav-link flex items-center space-x-2 px-3 py-2 rounded-lg ${
-                                                currentPage === item.id ? 'active' : ''
-                                            }`}
-                                        >
-                                            <i className={item.icon}></i>
-                                            <span>{item.label}</span>
-                                        </button>
-                                    ))}
-                                    <button
-                                        onClick={() => {
-                                            onLogout();
-                                            setMobileMenuOpen(false);
-                                        }}
-                                        className="nav-link flex items-center space-x-2 px-3 py-2 rounded-lg text-red-500 hover:text-red-600"
-                                    >
-                                        <i className="fas fa-sign-out-alt"></i>
-                                        <span>Logout</span>
-                                    </button>
-                                </nav>
-                            )}
+                    {/* Mobile Navigation */}
+                    <div className={`mobile-menu md:hidden bg-pink-100 ${mobileMenuOpen ? 'open' : ''}`}>
+                        <div className="px-4 py-2 space-y-1">
+                            {navItems.map(item => (
+                                <button
+                                    key={item.id}
+                                    onClick={() => {
+                                        playClickSound();
+                                        setCurrentPage(item.id);
+                                        setMobileMenuOpen(false);
+                                    }}
+                                    className={`w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 ${
+                                        currentPage === item.id 
+                                            ? 'bg-pink-300 text-pink-800' 
+                                            : 'text-pink-700 hover:bg-pink-200'
+                                    }`}
+                                >
+                                    <i className={`fas ${item.icon}`}></i>
+                                    <span>{item.label}</span>
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => {
+                                    playClickSound();
+                                    onLogout();
+                                    setMobileMenuOpen(false);
+                                }}
+                                className="w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 text-pink-700 hover:bg-pink-200"
+                            >
+                                <i className="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </button>
                         </div>
                     </div>
                 </header>
             );
         };
 
-        // Sign In Page Component
-        const SignInPage = ({ onLogin }) => {
-            const [puzzlePieces, setPuzzlePieces] = useState([
-                { id: 1, emoji: '💖', color: 'linear-gradient(135deg, #ff6b9d, #ff8fab)', startX: 50, startY: 300, targetX: 150, targetY: 150, solved: false },
-                { id: 2, emoji: '✨', color: 'linear-gradient(135deg, #a8e6cf, #88d8a3)', startX: 200, startY: 320, targetX: 230, targetY: 150, solved: false },
-                { id: 3, emoji: '🌸', color: 'linear-gradient(135deg, #dda0dd, #d8bfd8)', startX: 80, startY: 400, targetX: 150, targetY: 230, solved: false },
-                { id: 4, emoji: '🦋', color: 'linear-gradient(135deg, #ffb6c1, #ffc0cb)', startX: 250, startY: 420, targetX: 230, targetY: 230, solved: false }
-            ]);
-            const [puzzleSolved, setPuzzleSolved] = useState(false);
-            const [email, setEmail] = useState('');
-            const [password, setPassword] = useState('');
-            const [draggedPiece, setDraggedPiece] = useState(null);
-
-            const handleDragStart = (pieceId) => {
-                setDraggedPiece(pieceId);
-            };
-
-            const handleDragEnd = (pieceId, clientX, clientY) => {
-                const piece = puzzlePieces.find(p => p.id === pieceId);
-                const tolerance = 40;
-                
-                if (Math.abs(clientX - (piece.targetX + 30)) < tolerance && 
-                    Math.abs(clientY - (piece.targetY + 30)) < tolerance) {
-                    
-                    setPuzzlePieces(prev => 
-                        prev.map(p => 
-                            p.id === pieceId ? { ...p, solved: true } : p
-                        )
-                    );
-                    
-                    playSound(600, 0.1);
-                    
-                    // Check if all pieces are solved
-                    const updatedPieces = puzzlePieces.map(p => 
-                        p.id === pieceId ? { ...p, solved: true } : p
-                    );
-                    
-                    if (updatedPieces.every(p => p.solved)) {
-                        setPuzzleSolved(true);
-                        createConfetti();
-                        playSound(800, 0.2);
-                        setTimeout(() => {
-                            playSound(1000, 0.2);
-                        }, 200);
-                        setTimeout(() => {
-                            onLogin();
-                        }, 1500);
-                    }
-                }
-                setDraggedPiece(null);
-            };
-
-            const handleSocialLogin = (platform) => {
-                createConfetti();
-                playSound(800, 0.2);
-                setTimeout(() => {
-                    onLogin();
-                }, 1000);
-            };
-
-            const handleEmailLogin = () => {
-                if (email && password) {
-                    handleSocialLogin('email');
-                }
-            };
-
-            return (
-                <div className="min-h-screen flex items-center justify-center p-4">
-                    <div className="max-w-md mx-auto">
-                        <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 relative overflow-hidden">
-                            {/* Floating clouds */}
-                            <div className="cloud absolute -top-4 -left-4 w-16 h-16 bg-white/50 rounded-full"></div>
-                            <div className="cloud absolute -top-2 -right-6 w-12 h-12 bg-white/40 rounded-full"></div>
-                            <div className="cloud absolute -bottom-4 left-1/2 w-20 h-20 bg-white/30 rounded-full"></div>
-
-                            <div className="text-center mb-8">
-                                <div className="mascot text-6xl mb-4">🐱</div>
-                                <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent mb-2">
-                                    Kawaii Sign-In
-                                </h1>
-                                <p className="text-gray-600 sparkle">✨ Solve the puzzle to unlock your magical to-do list! ✨</p>
-                            </div>
-
-                            {/* Puzzle Section */}
-                            <div className="relative mb-8">
-                                <div className="puzzle-drop-zone w-80 h-64 mx-auto rounded-2xl relative mb-6">
-                                    <div className="absolute inset-4 grid grid-cols-2 gap-4">
-                                        <div className={`puzzle-slot ${puzzlePieces[0]?.solved ? 'filled' : ''}`}>
-                                            {puzzlePieces[0]?.solved ? '💖' : '?'}
-                                        </div>
-                                        <div className={`puzzle-slot ${puzzlePieces[1]?.solved ? 'filled' : ''}`}>
-                                            {puzzlePieces[1]?.solved ? '✨' : '?'}
-                                        </div>
-                                        <div className={`puzzle-slot ${puzzlePieces[2]?.solved ? 'filled' : ''}`}>
-                                            {puzzlePieces[2]?.solved ? '🌸' : '?'}
-                                        </div>
-                                        <div className={`puzzle-slot ${puzzlePieces[3]?.solved ? 'filled' : ''}`}>
-                                            {puzzlePieces[3]?.solved ? '🦋' : '?'}
-                                        </div>
-                                    </div>
-                                    
-                                    {puzzlePieces.map(piece => (
-                                        !piece.solved && (
-                                            <PuzzlePiece
-                                                key={piece.id}
-                                                piece={piece}
-                                                onDragStart={handleDragStart}
-                                                onDragEnd={handleDragEnd}
-                                            />
-                                        )
-                                    ))}
-                                </div>
-                                
-                                {puzzleSolved && (
-                                    <div className="text-center text-green-500 font-bold text-xl bounce">
-                                        🎉 Puzzle Solved! Welcome! 🎉
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Social Login Buttons */}
-                            <div className="space-y-3 mb-6">
-                                <button
-                                    onClick={() => handleSocialLogin('google')}
-                                    className="social-btn w-full bg-gradient-to-r from-red-400 to-red-500 text-white py-3 rounded-2xl font-semibold flex items-center justify-center space-x-3"
-                                >
-                                    <i className="fab fa-google text-xl"></i>
-                                    <span>Continue with Google</span>
-                                </button>
-                                <button
-                                    onClick={() => handleSocialLogin('github')}
-                                    className="social-btn w-full bg-gradient-to-r from-gray-700 to-gray-800 text-white py-3 rounded-2xl font-semibold flex items-center justify-center space-x-3"
-                                >
-                                    <i className="fab fa-github text-xl"></i>
-                                    <span>Continue with GitHub</span>
-                                </button>
-                                <button
-                                    onClick={() => handleSocialLogin('facebook')}
-                                    className="social-btn w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-2xl font-semibold flex items-center justify-center space-x-3"
-                                >
-                                    <i className="fab fa-facebook text-xl"></i>
-                                    <span>Continue with Facebook</span>
-                                </button>
-                            </div>
-
-                            {/* Email/Password Login */}
-                            <div className="border-t border-gray-200 pt-6">
-                                <p className="text-center text-gray-500 mb-4">Or sign in with email</p>
-                                <div className="space-y-3">
-                                    <input
-                                        type="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="✉️ Your cute email"
-                                        className="kawaii-input w-full p-3 rounded-2xl border-2 border-pink-200 focus:border-pink-400 focus:outline-none"
-                                    />
-                                    <input
-                                        type="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="🔒 Secret password"
-                                        className="kawaii-input w-full p-3 rounded-2xl border-2 border-pink-200 focus:border-pink-400 focus:outline-none"
-                                    />
-                                    <button
-                                        onClick={handleEmailLogin}
-                                        className="social-btn w-full bg-gradient-to-r from-purple-400 to-purple-500 text-white py-3 rounded-2xl font-semibold"
-                                    >
-                                        Sign In 🌸
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
         // Home Page Component
         const HomePage = () => {
             return (
-                <div className="page-transition max-w-4xl mx-auto p-6">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 text-center">
-                        <div className="mascot text-8xl mb-6">🐰</div>
-                        <h1 className="text-5xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent mb-4">
-                            Welcome to Your Kawaii World! 🌸
-                        </h1>
-                        <p className="text-xl text-gray-600 mb-8">
-                            Your magical productivity companion is here to make every task adorable! ✨
-                        </p>
-                        
-                        <div className="grid md:grid-cols-3 gap-6 mb-8">
-                            <div className="bg-pink-100 rounded-2xl p-6">
-                                <div className="text-4xl mb-3">📝</div>
-                                <h3 className="font-bold text-pink-600 mb-2">Organize Tasks</h3>
-                                <p className="text-gray-600">Keep track of all your cute to-dos!</p>
+                <div className="min-h-screen kawaii-gradient pt-20 p-6">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="text-center mb-12">
+                            <div className="text-8xl mb-4 bounce">🐰</div>
+                            <h1 className="text-5xl font-bold text-pink-600 mb-4">
+                                Welcome to Your Kawaii World! 🌸
+                            </h1>
+                            <p className="text-xl text-purple-600 mb-8">
+                                Your adorable productivity companion is here to make your day brighter! ✨
+                            </p>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-8">
+                            <div className="kawaii-card rounded-3xl p-6 text-center">
+                                <div className="text-4xl mb-4 sparkle">📝</div>
+                                <h3 className="text-2xl font-bold text-pink-600 mb-2">Organize Tasks</h3>
+                                <p className="text-purple-600">
+                                    Keep track of your daily tasks with our kawaii to-do list! 
+                                    Add, edit, and complete tasks with adorable animations.
+                                </p>
                             </div>
-                            <div className="bg-purple-100 rounded-2xl p-6">
-                                <div className="text-4xl mb-3">📅</div>
-                                <h3 className="font-bold text-purple-600 mb-2">Plan Your Days</h3>
-                                <p className="text-gray-600">Schedule your kawaii adventures!</p>
+
+                            <div className="kawaii-card rounded-3xl p-6 text-center">
+                                <div className="text-4xl mb-4 float">📅</div>
+                                <h3 className="text-2xl font-bold text-pink-600 mb-2">Plan Your Days</h3>
+                                <p className="text-purple-600">
+                                    Schedule your kawaii adventures and never miss an important moment!
+                                    Stay organized with style.
+                                </p>
                             </div>
-                            <div className="bg-green-100 rounded-2xl p-6">
-                                <div className="text-4xl mb-3">🎯</div>
-                                <h3 className="font-bold text-green-600 mb-2">Achieve Goals</h3>
-                                <p className="text-gray-600">Complete tasks with sparkles!</p>
+
+                            <div className="kawaii-card rounded-3xl p-6 text-center">
+                                <div className="text-4xl mb-4 bounce">📝</div>
+                                <h3 className="text-2xl font-bold text-pink-600 mb-2">Jot Down Ideas</h3>
+                                <p className="text-purple-600">
+                                    Capture your creative thoughts and kawaii inspirations in our 
+                                    adorable notes section!
+                                </p>
+                            </div>
+
+                            <div className="kawaii-card rounded-3xl p-6 text-center">
+                                <div className="text-4xl mb-4 sparkle">⚙️</div>
+                                <h3 className="text-2xl font-bold text-pink-600 mb-2">Customize</h3>
+                                <p className="text-purple-600">
+                                    Make the app truly yours with kawaii customization options 
+                                    and adorable themes!
+                                </p>
                             </div>
                         </div>
 
-                        <div className="flex justify-center space-x-4">
-                            <span className="sparkle text-2xl">⭐</span>
-                            <span className="sparkle text-2xl" style={{animationDelay: '0.5s'}}>✨</span>
-                            <span className="sparkle text-2xl" style={{animationDelay: '1s'}}>🌟</span>
-                            <span className="sparkle text-2xl" style={{animationDelay: '1.5s'}}>💫</span>
+                        <div className="text-center mt-12">
+                            <div className="kawaii-card rounded-3xl p-8 inline-block">
+                                <div className="flex items-center justify-center space-x-4 text-3xl">
+                                    <span className="bounce">🌸</span>
+                                    <span className="float">💖</span>
+                                    <span className="sparkle">⭐</span>
+                                    <span className="bounce">🦄</span>
+                                    <span className="float">🌙</span>
+                                </div>
+                                <p className="text-lg text-purple-600 mt-4">
+                                    Ready to make your day more kawaii? Let's get started! 🎀
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             );
         };
 
-        // Task Item Component
-        const TaskItem = ({ task, onToggle, onEdit, onDelete }) => {
-            const [isEditing, setIsEditing] = useState(false);
-            const [editText, setEditText] = useState(task.text);
-
-            const handleSave = () => {
-                if (editText.trim()) {
-                    onEdit(task.id, editText.trim());
-                    setIsEditing(false);
-                }
-            };
-
-            const handleKeyPress = (e) => {
-                if (e.key === 'Enter') {
-                    handleSave();
-                }
-                if (e.key === 'Escape') {
-                    setEditText(task.text);
-                    setIsEditing(false);
-                }
-            };
-
-            return (
-                <li className={`task-item p-4 rounded-2xl border-2 ${task.completed ? 'completed-task border-purple-200' : 'bg-white/80 border-pink-200'}`}>
-                    <div className="flex items-center space-x-3">
-                        <button
-                            onClick={() => onToggle(task.id)}
-                            className="flex-shrink-0 w-6 h-6 rounded-full border-2 border-pink-300 flex items-center justify-center hover:scale-110 transition-transform"
-                        >
-                            {task.completed ? '✅' : '⭕'}
-                        </button>
-                        
-                        {isEditing ? (
-                            <input
-                                type="text"
-                                value={editText}
-                                onChange={(e) => setEditText(e.target.value)}
-                                onKeyDown={handleKeyPress}
-                                onBlur={handleSave}
-                                className="flex-1 p-2 rounded-lg border-2 border-pink-300 focus:border-pink-500 focus:outline-none"
-                                autoFocus
-                            />
-                        ) : (
-                            <span className={`flex-1 ${task.completed ? 'task-text' : ''}`}>
-                                {task.text}
-                            </span>
-                        )}
-                        
-                        <div className="flex space-x-2">
-                            <button
-                                onClick={() => setIsEditing(!isEditing)}
-                                className="text-blue-500 hover:text-blue-700 hover:scale-110 transition-all"
-                                title="Edit task"
-                            >
-                                <i className="fas fa-edit"></i>
-                            </button>
-                            <button
-                                onClick={() => onDelete(task.id)}
-                                className="text-red-500 hover:text-red-700 hover:scale-110 transition-all"
-                                title="Delete task"
-                            >
-                                <i className="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </li>
-            );
-        };
-
-        // Todo Page Component
-        const TodoPage = () => {
+        // To-Do List Page Component
+        const ToDoPage = () => {
             const [tasks, setTasks] = useState([]);
             const [newTask, setNewTask] = useState('');
+            const [editingId, setEditingId] = useState(null);
+            const [editText, setEditText] = useState('');
 
             useEffect(() => {
-                const savedTasks = JSON.parse(localStorage.getItem('kawaii-tasks') || '[]');
-                setTasks(savedTasks);
+                const savedTasks = localStorage.getItem('kawaii-tasks');
+                if (savedTasks) {
+                    setTasks(JSON.parse(savedTasks));
+                }
             }, []);
 
             useEffect(() => {
                 localStorage.setItem('kawaii-tasks', JSON.stringify(tasks));
             }, [tasks]);
+
+            const playTaskSound = () => {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(500, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(700, audioContext.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+            };
 
             const addTask = () => {
                 if (newTask.trim()) {
@@ -767,7 +634,16 @@
                     };
                     setTasks([...tasks, task]);
                     setNewTask('');
-                    playSound(800, 0.1);
+                    playTaskSound();
+                    
+                    // Add bounce animation
+                    setTimeout(() => {
+                        const taskElement = document.querySelector(`[data-task-id="${task.id}"]`);
+                        if (taskElement) {
+                            taskElement.classList.add('wiggle');
+                            setTimeout(() => taskElement.classList.remove('wiggle'), 500);
+                        }
+                    }, 100);
                 }
             };
 
@@ -776,9 +652,12 @@
                     if (task.id === id) {
                         const updatedTask = { ...task, completed: !task.completed };
                         if (updatedTask.completed) {
-                            playSound(600, 0.1);
-                            setTimeout(() => playSound(800, 0.1), 100);
-                            createConfetti();
+                            playTaskSound();
+                            confetti({
+                                particleCount: 30,
+                                spread: 50,
+                                origin: { y: 0.7 }
+                            });
                         }
                         return updatedTask;
                     }
@@ -786,99 +665,170 @@
                 }));
             };
 
-            const editTask = (id, newText) => {
-                setTasks(tasks.map(task => 
-                    task.id === id ? { ...task, text: newText } : task
-                ));
-            };
-
             const deleteTask = (id) => {
                 setTasks(tasks.filter(task => task.id !== id));
-                playSound(400, 0.1, 'sawtooth');
+                playTaskSound();
             };
 
-            const handleKeyPress = (e) => {
-                if (e.key === 'Enter') {
-                    addTask();
+            const startEdit = (id, text) => {
+                setEditingId(id);
+                setEditText(text);
+            };
+
+            const saveEdit = () => {
+                if (editText.trim()) {
+                    setTasks(tasks.map(task => 
+                        task.id === editingId 
+                            ? { ...task, text: editText.trim() }
+                            : task
+                    ));
                 }
+                setEditingId(null);
+                setEditText('');
+                playTaskSound();
             };
 
-            const completedCount = tasks.filter(task => task.completed).length;
-            const totalCount = tasks.length;
+            const cancelEdit = () => {
+                setEditingId(null);
+                setEditText('');
+            };
 
             return (
-                <div className="page-transition max-w-2xl mx-auto p-6">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8">
-                        {/* Header */}
+                <div className="min-h-screen kawaii-gradient pt-20 p-6">
+                    <div className="max-w-4xl mx-auto">
                         <div className="text-center mb-8">
-                            <div className="mascot text-5xl mb-4">🐱✨</div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent mb-2">
-                                🌸 My Kawaii To-Do List 🌸
+                            <h1 className="text-4xl font-bold text-pink-600 mb-2">
+                                Kawaii To-Do List 📝
                             </h1>
-                            <p className="text-gray-600">
-                                {totalCount === 0 ? 'Add your first magical task!' : 
-                                 `${completedCount}/${totalCount} tasks completed! ${completedCount === totalCount && totalCount > 0 ? '🎉' : '💪'}`}
+                            <p className="text-purple-600 text-lg">
+                                Organize your tasks with kawaii style! ✨
                             </p>
                         </div>
 
-                        {/* Add Task Input */}
-                        <div className="flex space-x-3 mb-6">
-                            <input
-                                type="text"
-                                value={newTask}
-                                onChange={(e) => setNewTask(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                placeholder="Add something magical... 🦄✨"
-                                className="kawaii-input flex-1 p-3 rounded-2xl border-2 border-pink-200 focus:border-pink-400 focus:outline-none"
-                                maxLength={100}
-                            />
-                            <button
-                                onClick={addTask}
-                                className="social-btn bg-gradient-to-r from-pink-400 to-pink-500 text-white px-6 py-3 rounded-2xl font-semibold hover:from-pink-500 hover:to-pink-600 flex items-center space-x-2"
-                            >
-                                <i className="fas fa-heart"></i>
-                                <span>Add</span>
-                            </button>
+                        {/* Add Task Section */}
+                        <div className="kawaii-card rounded-3xl p-6 mb-8">
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <input
+                                    type="text"
+                                    value={newTask}
+                                    onChange={(e) => setNewTask(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && addTask()}
+                                    placeholder="Add a kawaii task... 🌸"
+                                    className="flex-1 px-4 py-3 rounded-full border-2 border-pink-200 focus:border-pink-400 focus:outline-none bg-white"
+                                />
+                                <button
+                                    onClick={addTask}
+                                    className="bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-bold py-3 px-8 rounded-full transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
+                                >
+                                    <i className="fas fa-plus"></i>
+                                    <span>Add Task</span>
+                                    <span>💖</span>
+                                </button>
+                            </div>
                         </div>
 
                         {/* Tasks List */}
-                        <div className="space-y-3 mb-6 max-h-96 overflow-y-auto">
+                        <div className="space-y-4">
                             {tasks.length === 0 ? (
-                                <div className="text-center py-12">
-                                    <div className="text-6xl mb-4 sparkle">🦋</div>
-                                    <p className="text-gray-500 text-lg font-semibold">You're free like a butterfly!</p>
-                                    <p className="text-gray-400">Add some magical tasks above ✨</p>
+                                <div className="kawaii-card rounded-3xl p-12 text-center">
+                                    <div className="text-6xl mb-4 float">🌸</div>
+                                    <h3 className="text-2xl font-bold text-pink-600 mb-2">No tasks yet!</h3>
+                                    <p className="text-purple-600">
+                                        Add your first kawaii task to get started! ✨
+                                    </p>
                                 </div>
                             ) : (
-                                <ul className="space-y-3">
-                                    {tasks.map(task => (
-                                        <TaskItem
-                                            key={task.id}
-                                            task={task}
-                                            onToggle={toggleTask}
-                                            onEdit={editTask}
-                                            onDelete={deleteTask}
-                                        />
-                                    ))}
-                                </ul>
+                                tasks.map(task => (
+                                    <div
+                                        key={task.id}
+                                        data-task-id={task.id}
+                                        className={`task-card kawaii-card rounded-2xl p-4 ${
+                                            task.completed ? 'bg-purple-50' : 'bg-pink-50'
+                                        }`}
+                                    >
+                                        <div className="flex items-center space-x-4">
+                                            <button
+                                                onClick={() => toggleTask(task.id)}
+                                                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                                                    task.completed
+                                                        ? 'bg-purple-400 border-purple-400 text-white'
+                                                        : 'border-pink-400 hover:bg-pink-100'
+                                                }`}
+                                            >
+                                                {task.completed && <i className="fas fa-check text-sm"></i>}
+                                            </button>
+
+                                            <div className="flex-1">
+                                                {editingId === task.id ? (
+                                                    <div className="flex items-center space-x-2">
+                                                        <input
+                                                            type="text"
+                                                            value={editText}
+                                                            onChange={(e) => setEditText(e.target.value)}
+                                                            onKeyPress={(e) => e.key === 'Enter' && saveEdit()}
+                                                            className="flex-1 px-3 py-2 rounded-lg border-2 border-pink-200 focus:border-pink-400 focus:outline-none"
+                                                        />
+                                                        <button
+                                                            onClick={saveEdit}
+                                                            className="text-green-600 hover:text-green-800"
+                                                        >
+                                                            <i className="fas fa-check"></i>
+                                                        </button>
+                                                        <button
+                                                            onClick={cancelEdit}
+                                                            className="text-red-600 hover:text-red-800"
+                                                        >
+                                                            <i className="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <span className={`text-lg ${task.completed ? 'completed-task text-purple-600' : 'text-pink-700'}`}>
+                                                        {task.text}
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {editingId !== task.id && (
+                                                <div className="flex items-center space-x-2">
+                                                    <button
+                                                        onClick={() => startEdit(task.id, task.text)}
+                                                        className="text-blue-600 hover:text-blue-800 p-2"
+                                                    >
+                                                        <i className="fas fa-edit"></i>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => deleteTask(task.id)}
+                                                        className="text-red-600 hover:text-red-800 p-2"
+                                                    >
+                                                        <i className="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))
                             )}
                         </div>
 
                         {/* Stats */}
                         {tasks.length > 0 && (
-                            <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl p-4">
-                                <div className="flex justify-around text-center">
+                            <div className="kawaii-card rounded-3xl p-6 mt-8">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                                     <div>
-                                        <div className="text-2xl font-bold text-pink-500">{totalCount}</div>
-                                        <div className="text-sm text-gray-600">Total</div>
+                                        <div className="text-3xl font-bold text-pink-600">{tasks.length}</div>
+                                        <div className="text-purple-600">Total Tasks</div>
                                     </div>
                                     <div>
-                                        <div className="text-2xl font-bold text-green-500">{completedCount}</div>
-                                        <div className="text-sm text-gray-600">Done</div>
+                                        <div className="text-3xl font-bold text-green-600">
+                                            {tasks.filter(t => t.completed).length}
+                                        </div>
+                                        <div className="text-purple-600">Completed</div>
                                     </div>
                                     <div>
-                                        <div className="text-2xl font-bold text-purple-500">{totalCount - completedCount}</div>
-                                        <div className="text-sm text-gray-600">Left</div>
+                                        <div className="text-3xl font-bold text-orange-600">
+                                            {tasks.filter(t => !t.completed).length}
+                                        </div>
+                                        <div className="text-purple-600">Remaining</div>
                                     </div>
                                 </div>
                             </div>
@@ -888,205 +838,197 @@
             );
         };
 
-        // Bin Page Component
-        const BinPage = () => {
-            return (
-                <div className="page-transition max-w-2xl mx-auto p-6">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 text-center">
-                        <div className="text-8xl mb-6">🗑️</div>
-                        <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-500 to-gray-700 bg-clip-text text-transparent mb-4">
-                            Deleted Tasks Go Here!
+        // Other Page Components
+        const BinPage = () => (
+            <div className="min-h-screen kawaii-gradient pt-20 p-6">
+                <div className="max-w-4xl mx-auto text-center">
+                    <div className="kawaii-card rounded-3xl p-12">
+                        <div className="text-8xl mb-6 bounce">🗑️</div>
+                        <h1 className="text-4xl font-bold text-pink-600 mb-4">
+                            Kawaii Bin 🌸
                         </h1>
-                        <p className="text-xl text-gray-600 mb-8">
-                            Your deleted tasks would appear here for recovery! 💫
+                        <p className="text-xl text-purple-600 mb-8">
+                            Deleted tasks go here! Don't worry, they're in a kawaii place now! ✨
                         </p>
-                        <div className="bg-gray-100 rounded-2xl p-8">
-                            <p className="text-gray-500">No deleted tasks yet! Keep your workspace clean! ✨</p>
+                        <div className="text-6xl opacity-50">
+                            <span className="float">🌸</span>
+                            <span className="bounce mx-4">💖</span>
+                            <span className="sparkle">⭐</span>
                         </div>
                     </div>
                 </div>
-            );
-        };
+            </div>
+        );
 
-        // Notes Page Component
         const NotesPage = () => {
             const [note, setNote] = useState('');
 
+            useEffect(() => {
+                const savedNote = localStorage.getItem('kawaii-note');
+                if (savedNote) {
+                    setNote(savedNote);
+                }
+            }, []);
+
+            const saveNote = () => {
+                localStorage.setItem('kawaii-note', note);
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+            };
+
             return (
-                <div className="page-transition max-w-2xl mx-auto p-6">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8">
+                <div className="min-h-screen kawaii-gradient pt-20 p-6">
+                    <div className="max-w-4xl mx-auto">
                         <div className="text-center mb-8">
-                            <div className="text-6xl mb-4">📝</div>
-                            <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent mb-4">
-                                Jot Down Your Cute Ideas Here!
+                            <h1 className="text-4xl font-bold text-pink-600 mb-2">
+                                Kawaii Notes 📝
                             </h1>
-                            <p className="text-gray-600">Write your thoughts, dreams, and kawaii inspirations! ✨</p>
+                            <p className="text-purple-600 text-lg">
+                                Jot down your cute ideas here! ✨
+                            </p>
                         </div>
 
-                        <textarea
-                            value={note}
-                            onChange={(e) => setNote(e.target.value)}
-                            placeholder="Write something magical... 🌟"
-                            className="kawaii-input w-full h-64 p-4 rounded-2xl border-2 border-yellow-200 focus:border-yellow-400 focus:outline-none resize-none"
-                        />
-
-                        <div className="mt-4 flex justify-between items-center">
-                            <span className="text-gray-500 text-sm">{note.length} characters</span>
-                            <button className="social-btn bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-6 py-2 rounded-xl font-semibold">
-                                <i className="fas fa-save mr-2"></i>
-                                Save Note
-                            </button>
+                        <div className="kawaii-card rounded-3xl p-6">
+                            <textarea
+                                value={note}
+                                onChange={(e) => setNote(e.target.value)}
+                                placeholder="Write your kawaii thoughts here... 🌸💭"
+                                className="w-full h-96 p-4 rounded-2xl border-2 border-pink-200 focus:border-pink-400 focus:outline-none resize-none"
+                            />
+                            <div className="mt-4 text-center">
+                                <button
+                                    onClick={saveNote}
+                                    className="bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-bold py-3 px-8 rounded-full transform hover:scale-105 transition-all duration-300"
+                                >
+                                    💾 Save Notes
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             );
         };
 
-        // Schedule Page Component
-        const SchedulePage = () => {
-            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const currentDate = new Date();
-            const currentMonth = currentDate.getMonth();
-            const currentYear = currentDate.getFullYear();
-            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const SchedulePage = () => (
+            <div className="min-h-screen kawaii-gradient pt-20 p-6">
+                <div className="max-w-4xl mx-auto">
+                    <div className="text-center mb-8">
+                        <h1 className="text-4xl font-bold text-pink-600 mb-2">
+                            Kawaii Schedule 📅
+                        </h1>
+                        <p className="text-purple-600 text-lg">
+                            Plan your kawaii days! ✨
+                        </p>
+                    </div>
 
-            const calendarDays = [];
-            
-            // Empty cells for days before the first day of the month
-            for (let i = 0; i < firstDay; i++) {
-                calendarDays.push(null);
-            }
-            
-            // Days of the month
-            for (let day = 1; day <= daysInMonth; day++) {
-                calendarDays.push(day);
-            }
-
-            return (
-                <div className="page-transition max-w-4xl mx-auto p-6">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8">
-                        <div className="text-center mb-8">
-                            <div className="text-6xl mb-4">📅</div>
-                            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent mb-4">
-                                Plan Your Kawaii Days!
-                            </h1>
-                            <p className="text-gray-600">Schedule your magical adventures and important dates! ✨</p>
+                    <div className="kawaii-card rounded-3xl p-6">
+                        <div className="grid grid-cols-7 gap-2 mb-4">
+                            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                                <div key={day} className="text-center font-bold text-pink-600 p-2">
+                                    {day}
+                                </div>
+                            ))}
                         </div>
-
-                        <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-6">
-                            <h2 className="text-2xl font-bold text-center mb-6 text-blue-600">
-                                {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                            </h2>
-                            
-                            <div className="calendar-grid mb-4">
-                                {daysOfWeek.map(day => (
-                                    <div key={day} className="text-center font-bold text-blue-600 p-2">
-                                        {day}
-                                    </div>
-                                ))}
-                            </div>
-                            
-                            <div className="calendar-grid">
-                                {calendarDays.map((day, index) => (
-                                    <div
-                                        key={index}
-                                        className={`calendar-day ${day ? 'bg-white/50 hover:bg-pink-100' : ''} ${
-                                            day === currentDate.getDate() ? 'bg-pink-200 font-bold' : ''
-                                        }`}
-                                    >
-                                        {day}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="mt-6 text-center">
-                            <p className="text-gray-500">Click on any date to add kawaii events! 🌸</p>
+                        <div className="grid grid-cols-7 gap-2">
+                            {Array.from({ length: 35 }, (_, i) => (
+                                <div key={i} className="aspect-square bg-pink-50 rounded-lg p-2 text-center hover:bg-pink-100 cursor-pointer transition-colors">
+                                    <div className="text-purple-600">{((i % 31) + 1)}</div>
+                                    {i % 7 === 0 && <div className="text-xs">🌸</div>}
+                                    {i % 7 === 3 && <div className="text-xs">💖</div>}
+                                    {i % 7 === 6 && <div className="text-xs">⭐</div>}
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
-            );
-        };
+            </div>
+        );
 
-        // Settings Page Component
         const SettingsPage = () => {
-            const [darkMode, setDarkMode] = useState(false);
+            const [theme, setTheme] = useState('pink');
             const [notifications, setNotifications] = useState(true);
-            const [soundEffects, setSoundEffects] = useState(true);
+            const [sounds, setSounds] = useState(true);
 
             return (
-                <div className="page-transition max-w-2xl mx-auto p-6">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8">
+                <div className="min-h-screen kawaii-gradient pt-20 p-6">
+                    <div className="max-w-4xl mx-auto">
                         <div className="text-center mb-8">
-                            <div className="text-6xl mb-4">⚙️</div>
-                            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent mb-4">
-                                Customize Your Kawaii Experience!
+                            <h1 className="text-4xl font-bold text-pink-600 mb-2">
+                                Kawaii Settings ⚙️
                             </h1>
-                            <p className="text-gray-600">Make the app perfectly yours! ✨</p>
+                            <p className="text-purple-600 text-lg">
+                                Customize your kawaii experience! ✨
+                            </p>
                         </div>
 
                         <div className="space-y-6">
-                            <div className="bg-purple-100 rounded-2xl p-6">
-                                <h3 className="text-xl font-bold text-purple-600 mb-4">Appearance</h3>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-gray-700">🌙 Dark Mode</span>
-                                    <button
-                                        onClick={() => setDarkMode(!darkMode)}
-                                        className={`w-12 h-6 rounded-full transition-colors ${
-                                            darkMode ? 'bg-purple-500' : 'bg-gray-300'
-                                        }`}
-                                    >
-                                        <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                                            darkMode ? 'translate-x-6' : 'translate-x-1'
-                                        }`}></div>
-                                    </button>
+                            <div className="kawaii-card rounded-3xl p-6">
+                                <h3 className="text-2xl font-bold text-pink-600 mb-4">Theme Color 🎨</h3>
+                                <div className="flex flex-wrap gap-4">
+                                    {['pink', 'purple', 'blue', 'green'].map(color => (
+                                        <button
+                                            key={color}
+                                            onClick={() => setTheme(color)}
+                                            className={`w-16 h-16 rounded-full border-4 ${
+                                                theme === color ? 'border-gray-800' : 'border-gray-300'
+                                            } bg-${color}-300 hover:scale-110 transition-transform`}
+                                        />
+                                    ))}
                                 </div>
                             </div>
 
-                            <div className="bg-pink-100 rounded-2xl p-6">
-                                <h3 className="text-xl font-bold text-pink-600 mb-4">Notifications</h3>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-gray-700">🔔 Task Reminders</span>
-                                    <button
-                                        onClick={() => setNotifications(!notifications)}
-                                        className={`w-12 h-6 rounded-full transition-colors ${
-                                            notifications ? 'bg-pink-500' : 'bg-gray-300'
-                                        }`}
-                                    >
-                                        <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                                            notifications ? 'translate-x-6' : 'translate-x-1'
-                                        }`}></div>
-                                    </button>
+                            <div className="kawaii-card rounded-3xl p-6">
+                                <h3 className="text-2xl font-bold text-pink-600 mb-4">Preferences 🌸</h3>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-purple-600 text-lg">Enable Notifications 🔔</span>
+                                        <button
+                                            onClick={() => setNotifications(!notifications)}
+                                            className={`w-12 h-6 rounded-full ${
+                                                notifications ? 'bg-pink-400' : 'bg-gray-300'
+                                            } relative transition-colors`}
+                                        >
+                                            <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${
+                                                notifications ? 'translate-x-6' : 'translate-x-0.5'
+                                            }`} />
+                                        </button>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-purple-600 text-lg">Sound Effects 🔊</span>
+                                        <button
+                                            onClick={() => setSounds(!sounds)}
+                                            className={`w-12 h-6 rounded-full ${
+                                                sounds ? 'bg-pink-400' : 'bg-gray-300'
+                                            } relative transition-colors`}
+                                        >
+                                            <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${
+                                                sounds ? 'translate-x-6' : 'translate-x-0.5'
+                                            }`} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="bg-green-100 rounded-2xl p-6">
-                                <h3 className="text-xl font-bold text-green-600 mb-4">Audio</h3>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-gray-700">🔊 Sound Effects</span>
-                                    <button
-                                        onClick={() => setSoundEffects(!soundEffects)}
-                                        className={`w-12 h-6 rounded-full transition-colors ${
-                                            soundEffects ? 'bg-green-500' : 'bg-gray-300'
-                                        }`}
-                                    >
-                                        <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                                            soundEffects ? 'translate-x-6' : 'translate-x-1'
-                                        }`}></div>
-                                    </button>
+                            <div className="kawaii-card rounded-3xl p-6 text-center">
+                                <div className="text-6xl mb-4">
+                                    <span className="bounce">🌸</span>
+                                    <span className="float mx-4">💖</span>
+                                    <span className="sparkle">⭐</span>
                                 </div>
-                            </div>
-
-                            <div className="bg-yellow-100 rounded-2xl p-6">
-                                <h3 className="text-xl font-bold text-yellow-600 mb-4">Theme Colors</h3>
-                                <div className="flex space-x-4 justify-center">
-                                    <button className="w-8 h-8 bg-pink-400 rounded-full hover:scale-110 transition-transform"></button>
-                                    <button className="w-8 h-8 bg-purple-400 rounded-full hover:scale-110 transition-transform"></button>
-                                    <button className="w-8 h-8 bg-blue-400 rounded-full hover:scale-110 transition-transform"></button>
-                                    <button className="w-8 h-8 bg-green-400 rounded-full hover:scale-110 transition-transform"></button>
-                                    <button className="w-8 h-8 bg-yellow-400 rounded-full hover:scale-110 transition-transform"></button>
-                                </div>
+                                <p className="text-purple-600 text-lg">
+                                    Made with kawaii love! Thank you for using our app! 🦄✨
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -1096,63 +1038,47 @@
 
         // Main App Component
         const App = () => {
-            const [isLoggedIn, setIsLoggedIn] = useState(false);
+            const [isSignedIn, setIsSignedIn] = useState(false);
             const [currentPage, setCurrentPage] = useState('home');
 
-            const handleLogin = () => {
-                setIsLoggedIn(true);
-                setCurrentPage('home');
+            const handleSignIn = () => {
+                setIsSignedIn(true);
             };
 
             const handleLogout = () => {
-                setIsLoggedIn(false);
+                setIsSignedIn(false);
                 setCurrentPage('home');
-            };
-
-            const handleNavigate = (page) => {
-                setCurrentPage(page);
             };
 
             const renderPage = () => {
                 switch (currentPage) {
-                    case 'home':
-                        return <HomePage />;
-                    case 'bin':
-                        return <BinPage />;
-                    case 'notes':
-                        return <NotesPage />;
-                    case 'schedule':
-                        return <SchedulePage />;
-                    case 'todo':
-                        return <TodoPage />;
-                    case 'settings':
-                        return <SettingsPage />;
-                    default:
-                        return <HomePage />;
+                    case 'home': return <HomePage />;
+                    case 'todo': return <ToDoPage />;
+                    case 'notes': return <NotesPage />;
+                    case 'schedule': return <SchedulePage />;
+                    case 'bin': return <BinPage />;
+                    case 'settings': return <SettingsPage />;
+                    default: return <HomePage />;
                 }
             };
 
+            if (!isSignedIn) {
+                return <SignInPage onSignIn={handleSignIn} />;
+            }
+
             return (
-                <div className="min-h-screen">
-                    <FloatingHearts />
-                    {isLoggedIn ? (
-                        <>
-                            <Header 
-                                currentPage={currentPage}
-                                onNavigate={handleNavigate}
-                                onLogout={handleLogout}
-                            />
-                            <main className="pt-20">
-                                {renderPage()}
-                            </main>
-                        </>
-                    ) : (
-                        <SignInPage onLogin={handleLogin} />
-                    )}
+                <div>
+                    <Header 
+                        currentPage={currentPage} 
+                        setCurrentPage={setCurrentPage}
+                        onLogout={handleLogout}
+                    />
+                    {renderPage()}
                 </div>
             );
         };
 
+        // Render the app
         ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
