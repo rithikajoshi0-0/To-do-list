@@ -1,653 +1,730 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌸 Cutest To-Do List 🌸</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600;700&display=swap');
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    :root {
-      --primary-pink: #ff6b9d;
-      --soft-pink: #ffe4f2;
-      --baby-blue: #a8e6cf;
-      --lilac: #dda0dd;
-      --peach: #ffb6c1;
-      --cream: #fffafc;
-      --text-dark: #4a4a4a;
-      --shadow-pink: rgba(255, 182, 193, 0.3);
-    }
-    
-    body {
-      background: linear-gradient(135deg, #fffafc 0%, #ffe4f2 50%, #f0e6ff 100%);
-      font-family: 'Quicksand', 'Comic Sans MS', cursive;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      position: relative;
-      overflow-x: hidden;
-    }
-    
-    .background-decorations {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: -1;
-    }
-    
-    .floating-emoji {
-      position: absolute;
-      font-size: 2rem;
-      opacity: 0.1;
-      animation: float 6s ease-in-out infinite;
-    }
-    
-    @keyframes float {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      50% { transform: translateY(-20px) rotate(5deg); }
-    }
-    
-    .todo-container {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      padding: 40px 30px;
-      border-radius: 30px;
-      box-shadow: 
-        0 20px 40px var(--shadow-pink),
-        0 0 0 1px rgba(255, 255, 255, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-      position: relative;
-      border: 3px solid transparent;
-      background-clip: padding-box;
-      animation: containerPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    }
-    
-    @keyframes containerPop {
-      0% {
-        transform: scale(0.8);
-        opacity: 0;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-    
-    .title {
-      color: var(--primary-pink);
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 4px rgba(255, 107, 157, 0.2);
-      animation: titleBounce 2s ease-in-out infinite;
-    }
-    
-    @keyframes titleBounce {
-      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-      40% { transform: translateY(-3px); }
-      60% { transform: translateY(-2px); }
-    }
-    
-    .subtitle {
-      color: var(--text-dark);
-      font-size: 1rem;
-      opacity: 0.8;
-      margin-bottom: 30px;
-    }
-    
-    .input-section {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 30px;
-      align-items: stretch;
-    }
-    
-    .task-input {
-      flex: 1;
-      padding: 15px 20px;
-      border: 3px solid var(--peach);
-      border-radius: 20px;
-      font-size: 16px;
-      font-family: inherit;
-      outline: none;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      background: rgba(255, 255, 255, 0.9);
-    }
-    
-    .task-input:focus {
-      border-color: var(--primary-pink);
-      transform: scale(1.02);
-      box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
-    }
-    
-    .task-input::placeholder {
-      color: #999;
-      font-style: italic;
-    }
-    
-    .add-btn {
-      background: linear-gradient(135deg, var(--primary-pink) 0%, var(--lilac) 100%);
-      color: white;
-      border: none;
-      padding: 15px 25px;
-      border-radius: 20px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      white-space: nowrap;
-      box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
-    }
-    
-    .add-btn:hover {
-      transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 8px 25px rgba(255, 107, 157, 0.4);
-    }
-    
-    .add-btn:active {
-      transform: translateY(0) scale(0.98);
-    }
-    
-    .task-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    
-    .task-item {
-      background: rgba(255, 255, 255, 0.8);
-      border: 2px solid var(--peach);
-      border-radius: 20px;
-      padding: 15px 20px;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      animation: taskSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .task-item::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transition: left 0.5s;
-    }
-    
-    .task-item:hover::before {
-      left: 100%;
-    }
-    
-    .task-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(255, 182, 193, 0.3);
-      border-color: var(--primary-pink);
-    }
-    
-    @keyframes taskSlideIn {
-      0% {
-        transform: translateX(-100%) scale(0.8);
-        opacity: 0;
-      }
-      100% {
-        transform: translateX(0) scale(1);
-        opacity: 1;
-      }
-    }
-    
-    .task-text {
-      flex: 1;
-      text-align: left;
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--text-dark);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      word-wrap: break-word;
-    }
-    
-    .task-text.completed {
-      text-decoration: line-through;
-      color: #aaa;
-      opacity: 0.6;
-    }
-    
-    .task-buttons {
-      display: flex;
-      gap: 8px;
-    }
-    
-    .task-btn {
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      padding: 5px;
-      border-radius: 50%;
-      width: 35px;
-      height: 35px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-    }
-    
-    .task-btn:hover {
-      transform: scale(1.2);
-      background: rgba(255, 255, 255, 0.5);
-    }
-    
-    .task-btn:active {
-      transform: scale(0.9);
-    }
-    
-    .edit-btn:hover {
-      background: rgba(255, 235, 59, 0.2);
-    }
-    
-    .delete-btn:hover {
-      background: rgba(255, 87, 87, 0.2);
-    }
-    
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-dark);
-      opacity: 0.7;
-      animation: fadeIn 0.5s ease-in;
-    }
-    
-    .empty-state .empty-icon {
-      font-size: 3rem;
-      margin-bottom: 15px;
-      animation: float 3s ease-in-out infinite;
-    }
-    
-    .empty-state .empty-text {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    
-    .empty-state .empty-subtext {
-      font-size: 0.9rem;
-      opacity: 0.8;
-    }
-    
-    @keyframes fadeIn {
-      0% { opacity: 0; transform: translateY(20px); }
-      100% { opacity: 0.7; transform: translateY(0); }
-    }
-    
-    .stats {
-      margin-top: 20px;
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: 15px;
-      display: flex;
-      justify-content: space-around;
-      font-size: 0.9rem;
-      color: var(--text-dark);
-    }
-    
-    .stat-item {
-      text-align: center;
-    }
-    
-    .stat-number {
-      display: block;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--primary-pink);
-    }
-    
-    @media (max-width: 480px) {
-      .todo-container {
-        padding: 30px 20px;
-        margin: 10px;
-      }
-      
-      .title {
-        font-size: 2rem;
-      }
-      
-      .input-section {
-        flex-direction: column;
-      }
-      
-      .add-btn {
-        width: 100%;
-      }
-    }
-    
-    .celebration {
-      position: fixed;
-      pointer-events: none;
-      z-index: 1000;
-    }
-    
-    @keyframes confetti {
-      0% {
-        transform: translateY(-100vh) rotate(0deg);
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(100vh) rotate(360deg);
-        opacity: 0;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸 Kawaii To-Do List 🌸</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', 'Comic Sans MS', cursive;
+            background: linear-gradient(135deg, #fce2e6 0%, #e8f4fd 50%, #f0e6ff 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .floating-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0.1;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        .puzzle-piece {
+            cursor: grab;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            user-select: none;
+        }
+
+        .puzzle-piece:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+        }
+
+        .puzzle-piece:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        .puzzle-drop-zone {
+            border: 3px dashed #f472b6;
+            background: rgba(244, 114, 182, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .puzzle-drop-zone.active {
+            border-color: #ec4899;
+            background: rgba(236, 72, 153, 0.2);
+            transform: scale(1.02);
+        }
+
+        .task-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(244, 114, 182, 0.3);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .bounce {
+            animation: bounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes bounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .sparkle {
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .social-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .social-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .kawaii-input {
+            transition: all 0.3s ease;
+        }
+
+        .kawaii-input:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(244, 114, 182, 0.3);
+        }
+
+        .completed-task {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            opacity: 0.7;
+        }
+
+        .completed-task .task-text {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+
+        .mascot {
+            animation: wiggle 3s ease-in-out infinite;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            75% { transform: rotate(-5deg); }
+        }
+
+        .cloud {
+            animation: drift 15s ease-in-out infinite;
+        }
+
+        @keyframes drift {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(10px) translateY(-5px); }
+            50% { transform: translateX(-5px) translateY(-10px); }
+            75% { transform: translateX(-10px) translateY(5px); }
+        }
+    </style>
 </head>
 <body>
-  <div class="background-decorations"></div>
-  
-  <div class="todo-container">
-    <h1 class="title">🌸 My Daily Sparkle List ✨</h1>
-    <p class="subtitle">Stay productive with sparkles and smiles!</p>
-    
-    <div class="input-section">
-      <input 
-        type="text" 
-        class="task-input" 
-        id="taskInput" 
-        placeholder="Add something adorable... 🦄"
-        maxlength="100"
-      >
-      <button class="add-btn" onclick="addTask()">✨ Add Magic</button>
-    </div>
-    
-    <ul class="task-list" id="taskList"></ul>
-    
-    <div class="stats" id="stats" style="display: none;">
-      <div class="stat-item">
-        <span class="stat-number" id="totalTasks">0</span>
-        <span>Total</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number" id="completedTasks">0</span>
-        <span>Done</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number" id="remainingTasks">0</span>
-        <span>Left</span>
-      </div>
-    </div>
-  </div>
+    <div class="floating-hearts" id="floating-hearts"></div>
+    <div id="root" class="min-h-screen flex items-center justify-center p-4"></div>
 
-  <script>
-    // Initialize app
-    document.addEventListener('DOMContentLoaded', function() {
-      loadTasks();
-      setupFloatingEmojis();
-      
-      // Add enter key support
-      document.getElementById('taskInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          addTask();
-        }
-      });
-    });
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-    // Setup floating background emojis
-    function setupFloatingEmojis() {
-      const container = document.querySelector('.background-decorations');
-      const emojis = ['🌸', '✨', '🌈', '🦄', '💖', '🍓', '🌙', '⭐', '🦋', '🌺'];
-      
-      for (let i = 0; i < 15; i++) {
-        const emoji = document.createElement('div');
-        emoji.className = 'floating-emoji';
-        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        emoji.style.left = Math.random() * 100 + '%';
-        emoji.style.top = Math.random() * 100 + '%';
-        emoji.style.animationDelay = Math.random() * 6 + 's';
-        emoji.style.animationDuration = (Math.random() * 4 + 4) + 's';
-        container.appendChild(emoji);
-      }
-    }
+        // Floating hearts background
+        const FloatingHearts = () => {
+            useEffect(() => {
+                const container = document.getElementById('floating-hearts');
+                const hearts = ['💖', '💕', '💗', '🌸', '✨', '🌟', '🦋', '🌺'];
+                
+                for (let i = 0; i < 20; i++) {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.top = Math.random() * 100 + '%';
+                    heart.style.animationDelay = Math.random() * 8 + 's';
+                    heart.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                    container.appendChild(heart);
+                }
+            }, []);
 
-    // Add new task
-    function addTask() {
-      const taskInput = document.getElementById('taskInput');
-      const taskText = taskInput.value.trim();
-      
-      if (taskText === '') {
-        taskInput.style.animation = 'none';
-        taskInput.offsetHeight; // Trigger reflow
-        taskInput.style.animation = 'shake 0.5s ease-in-out';
-        return;
-      }
-      
-      const tasks = getTasks();
-      const newTask = {
-        id: Date.now(),
-        text: taskText,
-        completed: false,
-        createdAt: new Date().toISOString()
-      };
-      
-      tasks.push(newTask);
-      saveTasks(tasks);
-      taskInput.value = '';
-      
-      loadTasks();
-      playAddSound();
-    }
+            return null;
+        };
 
-    // Toggle task completion
-    function toggleTask(taskId) {
-      const tasks = getTasks();
-      const task = tasks.find(t => t.id === taskId);
-      
-      if (task) {
-        task.completed = !task.completed;
-        saveTasks(tasks);
-        loadTasks();
-        
-        if (task.completed) {
-          createConfetti();
-          playCompleteSound();
-        }
-      }
-    }
+        // Sound effects
+        const playSound = (frequency = 800, duration = 0.1, type = 'sine') => {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        };
 
-    // Edit task
-    function editTask(taskId) {
-      const tasks = getTasks();
-      const task = tasks.find(t => t.id === taskId);
-      
-      if (task) {
-        const newText = prompt('✨ Edit your magical task:', task.text);
-        if (newText !== null && newText.trim() !== '') {
-          task.text = newText.trim();
-          saveTasks(tasks);
-          loadTasks();
-        }
-      }
-    }
+        // Confetti animation
+        const createConfetti = () => {
+            const colors = ['#ff6b9d', '#fce2e6', '#a8e6cf', '#dda0dd', '#ffb6c1'];
+            const emojis = ['✨', '🌟', '💖', '🎉', '🌸', '🦋'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    
+                    if (Math.random() > 0.5) {
+                        confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                        confetti.style.fontSize = Math.random() * 20 + 15 + 'px';
+                    } else {
+                        confetti.style.width = Math.random() * 10 + 5 + 'px';
+                        confetti.style.height = confetti.style.width;
+                        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        confetti.style.borderRadius = '50%';
+                    }
+                    
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.animation = 'confetti-fall ' + (Math.random() * 3 + 2) + 's linear forwards';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }, i * 30);
+            }
+        };
 
-    // Delete task
-    function deleteTask(taskId) {
-      if (confirm('🥺 Are you sure you want to delete this cute task?')) {
-        const tasks = getTasks();
-        const filteredTasks = tasks.filter(t => t.id !== taskId);
-        saveTasks(filteredTasks);
-        loadTasks();
-        playDeleteSound();
-      }
-    }
+        // Puzzle Piece Component
+        const PuzzlePiece = ({ piece, onDrag, onDrop }) => {
+            const [isDragging, setIsDragging] = useState(false);
+            const [position, setPosition] = useState({ x: piece.startX, y: piece.startY });
+            const pieceRef = useRef(null);
 
-    // Load and display tasks
-    function loadTasks() {
-      const tasks = getTasks();
-      const taskList = document.getElementById('taskList');
-      const stats = document.getElementById('stats');
-      
-      taskList.innerHTML = '';
-      
-      if (tasks.length === 0) {
-        taskList.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-icon">🦋</div>
-            <div class="empty-text">You're free like a butterfly!</div>
-            <div class="empty-subtext">Add some magical tasks above ✨</div>
-          </div>
-        `;
-        stats.style.display = 'none';
-      } else {
-        tasks.forEach(task => {
-          const li = document.createElement('li');
-          li.className = 'task-item';
-          li.innerHTML = `
-            <span class="task-text ${task.completed ? 'completed' : ''}" 
-                  onclick="toggleTask(${task.id})">
-              ${task.completed ? '✅' : '⭕'} ${escapeHtml(task.text)}
-            </span>
-            <div class="task-buttons">
-              <button class="task-btn edit-btn" onclick="editTask(${task.id})" title="Edit task">
-                📝
-              </button>
-              <button class="task-btn delete-btn" onclick="deleteTask(${task.id})" title="Delete task">
-                🗑️
-              </button>
-            </div>
-          `;
-          taskList.appendChild(li);
-        });
-        
-        updateStats(tasks);
-        stats.style.display = 'flex';
-      }
-    }
+            const handleMouseDown = (e) => {
+                setIsDragging(true);
+                const rect = pieceRef.current.getBoundingClientRect();
+                const offsetX = e.clientX - rect.left;
+                const offsetY = e.clientY - rect.top;
 
-    // Update statistics
-    function updateStats(tasks) {
-      const total = tasks.length;
-      const completed = tasks.filter(t => t.completed).length;
-      const remaining = total - completed;
-      
-      document.getElementById('totalTasks').textContent = total;
-      document.getElementById('completedTasks').textContent = completed;
-      document.getElementById('remainingTasks').textContent = remaining;
-    }
+                const handleMouseMove = (e) => {
+                    const newX = e.clientX - offsetX;
+                    const newY = e.clientY - offsetY;
+                    setPosition({ x: newX, y: newY });
+                    onDrag(piece.id, newX, newY);
+                };
 
-    // Get tasks from localStorage
-    function getTasks() {
-      const tasks = localStorage.getItem('cutestTasks');
-      return tasks ? JSON.parse(tasks) : [];
-    }
+                const handleMouseUp = () => {
+                    setIsDragging(false);
+                    onDrop(piece.id, position.x, position.y);
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                };
 
-    // Save tasks to localStorage
-    function saveTasks(tasks) {
-      localStorage.setItem('cutestTasks', JSON.stringify(tasks));
-    }
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+            };
 
-    // Escape HTML to prevent XSS
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
+            return (
+                <div
+                    ref={pieceRef}
+                    className={`puzzle-piece absolute w-16 h-16 rounded-full flex items-center justify-center text-2xl select-none ${isDragging ? 'z-50' : 'z-10'}`}
+                    style={{
+                        left: position.x,
+                        top: position.y,
+                        background: piece.color,
+                        boxShadow: isDragging ? '0 10px 30px rgba(0,0,0,0.3)' : '0 4px 15px rgba(0,0,0,0.2)'
+                    }}
+                    onMouseDown={handleMouseDown}
+                >
+                    {piece.emoji}
+                </div>
+            );
+        };
 
-    // Create confetti animation
-    function createConfetti() {
-      const colors = ['#ff6b9d', '#ffe4f2', '#a8e6cf', '#dda0dd', '#ffb6c1'];
-      const emojis = ['✨', '🌟', '💖', '🎉', '🌸'];
-      
-      for (let i = 0; i < 50; i++) {
-        setTimeout(() => {
-          const confetti = document.createElement('div');
-          confetti.className = 'celebration';
-          
-          if (Math.random() > 0.5) {
-            confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-            confetti.style.fontSize = Math.random() * 20 + 10 + 'px';
-          } else {
-            confetti.style.width = Math.random() * 8 + 4 + 'px';
-            confetti.style.height = confetti.style.width;
-            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            confetti.style.borderRadius = '50%';
-          }
-          
-          confetti.style.left = Math.random() * 100 + 'vw';
-          confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
-          confetti.style.animation = 'confetti linear forwards';
-          
-          document.body.appendChild(confetti);
-          
-          setTimeout(() => {
-            confetti.remove();
-          }, 5000);
-        }, i * 50);
-      }
-    }
+        // Sign In Page Component
+        const SignInPage = ({ onLogin }) => {
+            const [puzzlePieces, setPuzzlePieces] = useState([
+                { id: 1, emoji: '💖', color: 'linear-gradient(135deg, #ff6b9d, #ff8fab)', startX: 50, startY: 50, targetX: 100, targetY: 100 },
+                { id: 2, emoji: '✨', color: 'linear-gradient(135deg, #a8e6cf, #88d8a3)', startX: 200, startY: 80, targetX: 180, targetY: 100 },
+                { id: 3, emoji: '🌸', color: 'linear-gradient(135deg, #dda0dd, #d8bfd8)', startX: 80, startY: 200, targetX: 100, targetY: 180 },
+                { id: 4, emoji: '🦋', color: 'linear-gradient(135deg, #ffb6c1, #ffc0cb)', startX: 220, startY: 220, targetX: 180, targetY: 180 }
+            ]);
+            const [puzzleSolved, setPuzzleSolved] = useState(false);
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
 
-    // Sound effects (using Web Audio API for cute sounds)
-    function playAddSound() {
-      playTone(800, 0.1, 'sine');
-    }
+            const handlePuzzleDrag = (pieceId, x, y) => {
+                setPuzzlePieces(prev => 
+                    prev.map(piece => 
+                        piece.id === pieceId ? { ...piece, currentX: x, currentY: y } : piece
+                    )
+                );
+            };
 
-    function playCompleteSound() {
-      playTone(600, 0.1, 'sine');
-      setTimeout(() => playTone(800, 0.1, 'sine'), 100);
-      setTimeout(() => playTone(1000, 0.2, 'sine'), 200);
-    }
+            const handlePuzzleDrop = (pieceId, x, y) => {
+                const piece = puzzlePieces.find(p => p.id === pieceId);
+                const tolerance = 30;
+                
+                if (Math.abs(x - piece.targetX) < tolerance && Math.abs(y - piece.targetY) < tolerance) {
+                    setPuzzlePieces(prev => 
+                        prev.map(p => 
+                            p.id === pieceId ? { ...p, solved: true, currentX: piece.targetX, currentY: piece.targetY } : p
+                        )
+                    );
+                    
+                    playSound(600, 0.1);
+                    
+                    // Check if all pieces are solved
+                    const updatedPieces = puzzlePieces.map(p => 
+                        p.id === pieceId ? { ...p, solved: true } : p
+                    );
+                    
+                    if (updatedPieces.every(p => p.solved)) {
+                        setPuzzleSolved(true);
+                        createConfetti();
+                        playSound(800, 0.2);
+                        setTimeout(() => {
+                            playSound(1000, 0.2);
+                        }, 200);
+                        setTimeout(() => {
+                            onLogin();
+                        }, 1500);
+                    }
+                }
+            };
 
-    function playDeleteSound() {
-      playTone(400, 0.1, 'sawtooth');
-    }
+            const handleSocialLogin = (platform) => {
+                createConfetti();
+                playSound(800, 0.2);
+                setTimeout(() => {
+                    onLogin();
+                }, 1000);
+            };
 
-    function playTone(frequency, duration, type = 'sine') {
-      if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        const audioContext = new AudioContext();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-        oscillator.type = type;
-        
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-        
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + duration);
-      }
-    }
+            const handleEmailLogin = () => {
+                if (email && password) {
+                    handleSocialLogin('email');
+                }
+            };
 
-    // Add shake animation for empty input
-    const shakeStyle = document.createElement('style');
-    shakeStyle.textContent = `
-      @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-        20%, 40%, 60%, 80% { transform: translateX(5px); }
-      }
-    `;
-    document.head.appendChild(shakeStyle);
-  </script>
+            return (
+                <div className="max-w-md mx-auto">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 relative overflow-hidden">
+                        {/* Floating clouds */}
+                        <div className="cloud absolute -top-4 -left-4 w-16 h-16 bg-white/50 rounded-full"></div>
+                        <div className="cloud absolute -top-2 -right-6 w-12 h-12 bg-white/40 rounded-full"></div>
+                        <div className="cloud absolute -bottom-4 left-1/2 w-20 h-20 bg-white/30 rounded-full"></div>
+
+                        <div className="text-center mb-8">
+                            <div className="mascot text-6xl mb-4">🐱</div>
+                            <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent mb-2">
+                                Kawaii Sign-In
+                            </h1>
+                            <p className="text-gray-600 sparkle">✨ Solve the puzzle to unlock your magical to-do list! ✨</p>
+                        </div>
+
+                        {/* Puzzle Section */}
+                        <div className="relative mb-8">
+                            <div className="puzzle-drop-zone w-80 h-64 mx-auto rounded-2xl relative mb-6">
+                                <div className="absolute inset-4 grid grid-cols-2 gap-4">
+                                    <div className="bg-pink-100/50 rounded-xl flex items-center justify-center text-gray-400">
+                                        {puzzlePieces[0]?.solved ? '💖' : '?'}
+                                    </div>
+                                    <div className="bg-green-100/50 rounded-xl flex items-center justify-center text-gray-400">
+                                        {puzzlePieces[1]?.solved ? '✨' : '?'}
+                                    </div>
+                                    <div className="bg-purple-100/50 rounded-xl flex items-center justify-center text-gray-400">
+                                        {puzzlePieces[2]?.solved ? '🌸' : '?'}
+                                    </div>
+                                    <div className="bg-pink-100/50 rounded-xl flex items-center justify-center text-gray-400">
+                                        {puzzlePieces[3]?.solved ? '🦋' : '?'}
+                                    </div>
+                                </div>
+                                
+                                {puzzlePieces.map(piece => (
+                                    !piece.solved && (
+                                        <PuzzlePiece
+                                            key={piece.id}
+                                            piece={piece}
+                                            onDrag={handlePuzzleDrag}
+                                            onDrop={handlePuzzleDrop}
+                                        />
+                                    )
+                                ))}
+                            </div>
+                            
+                            {puzzleSolved && (
+                                <div className="text-center text-green-500 font-bold text-xl bounce">
+                                    🎉 Puzzle Solved! Welcome! 🎉
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Social Login Buttons */}
+                        <div className="space-y-3 mb-6">
+                            <button
+                                onClick={() => handleSocialLogin('google')}
+                                className="social-btn w-full bg-gradient-to-r from-red-400 to-red-500 text-white py-3 rounded-2xl font-semibold flex items-center justify-center space-x-3"
+                            >
+                                <span className="text-xl">🐻</span>
+                                <span>Continue with Google</span>
+                            </button>
+                            <button
+                                onClick={() => handleSocialLogin('github')}
+                                className="social-btn w-full bg-gradient-to-r from-gray-700 to-gray-800 text-white py-3 rounded-2xl font-semibold flex items-center justify-center space-x-3"
+                            >
+                                <span className="text-xl">😺</span>
+                                <span>Continue with GitHub</span>
+                            </button>
+                            <button
+                                onClick={() => handleSocialLogin('facebook')}
+                                className="social-btn w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-2xl font-semibold flex items-center justify-center space-x-3"
+                            >
+                                <span className="text-xl">🐰</span>
+                                <span>Continue with Facebook</span>
+                            </button>
+                        </div>
+
+                        {/* Email/Password Login */}
+                        <div className="border-t border-gray-200 pt-6">
+                            <p className="text-center text-gray-500 mb-4">Or sign in with email</p>
+                            <div className="space-y-3">
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="✉️ Your cute email"
+                                    className="kawaii-input w-full p-3 rounded-2xl border-2 border-pink-200 focus:border-pink-400 focus:outline-none"
+                                />
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="🔒 Secret password"
+                                    className="kawaii-input w-full p-3 rounded-2xl border-2 border-pink-200 focus:border-pink-400 focus:outline-none"
+                                />
+                                <button
+                                    onClick={handleEmailLogin}
+                                    className="social-btn w-full bg-gradient-to-r from-purple-400 to-purple-500 text-white py-3 rounded-2xl font-semibold"
+                                >
+                                    Sign In 🌸
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Task Item Component
+        const TaskItem = ({ task, onToggle, onEdit, onDelete }) => {
+            const [isEditing, setIsEditing] = useState(false);
+            const [editText, setEditText] = useState(task.text);
+
+            const handleSave = () => {
+                if (editText.trim()) {
+                    onEdit(task.id, editText.trim());
+                    setIsEditing(false);
+                }
+            };
+
+            const handleKeyPress = (e) => {
+                if (e.key === 'Enter') {
+                    handleSave();
+                }
+                if (e.key === 'Escape') {
+                    setEditText(task.text);
+                    setIsEditing(false);
+                }
+            };
+
+            return (
+                <li className={`task-item p-4 rounded-2xl border-2 ${task.completed ? 'completed-task border-purple-200' : 'bg-white/80 border-pink-200'}`}>
+                    <div className="flex items-center space-x-3">
+                        <button
+                            onClick={() => onToggle(task.id)}
+                            className="flex-shrink-0 w-6 h-6 rounded-full border-2 border-pink-300 flex items-center justify-center hover:scale-110 transition-transform"
+                        >
+                            {task.completed ? '✅' : '⭕'}
+                        </button>
+                        
+                        {isEditing ? (
+                            <input
+                                type="text"
+                                value={editText}
+                                onChange={(e) => setEditText(e.target.value)}
+                                onKeyDown={handleKeyPress}
+                                onBlur={handleSave}
+                                className="flex-1 p-2 rounded-lg border-2 border-pink-300 focus:border-pink-500 focus:outline-none"
+                                autoFocus
+                            />
+                        ) : (
+                            <span className={`flex-1 ${task.completed ? 'task-text' : ''}`}>
+                                {task.text}
+                            </span>
+                        )}
+                        
+                        <div className="flex space-x-2">
+                            <button
+                                onClick={() => setIsEditing(!isEditing)}
+                                className="text-blue-500 hover:text-blue-700 hover:scale-110 transition-all"
+                                title="Edit task"
+                            >
+                                ✏️
+                            </button>
+                            <button
+                                onClick={() => onDelete(task.id)}
+                                className="text-red-500 hover:text-red-700 hover:scale-110 transition-all"
+                                title="Delete task"
+                            >
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </li>
+            );
+        };
+
+        // Todo Page Component
+        const TodoPage = ({ onLogout }) => {
+            const [tasks, setTasks] = useState([]);
+            const [newTask, setNewTask] = useState('');
+
+            useEffect(() => {
+                const savedTasks = JSON.parse(localStorage.getItem('kawaii-tasks') || '[]');
+                setTasks(savedTasks);
+            }, []);
+
+            useEffect(() => {
+                localStorage.setItem('kawaii-tasks', JSON.stringify(tasks));
+            }, [tasks]);
+
+            const addTask = () => {
+                if (newTask.trim()) {
+                    const task = {
+                        id: Date.now(),
+                        text: newTask.trim(),
+                        completed: false,
+                        createdAt: new Date().toISOString()
+                    };
+                    setTasks([...tasks, task]);
+                    setNewTask('');
+                    playSound(800, 0.1);
+                }
+            };
+
+            const toggleTask = (id) => {
+                setTasks(tasks.map(task => {
+                    if (task.id === id) {
+                        const updatedTask = { ...task, completed: !task.completed };
+                        if (updatedTask.completed) {
+                            playSound(600, 0.1);
+                            setTimeout(() => playSound(800, 0.1), 100);
+                            createConfetti();
+                        }
+                        return updatedTask;
+                    }
+                    return task;
+                }));
+            };
+
+            const editTask = (id, newText) => {
+                setTasks(tasks.map(task => 
+                    task.id === id ? { ...task, text: newText } : task
+                ));
+            };
+
+            const deleteTask = (id) => {
+                setTasks(tasks.filter(task => task.id !== id));
+                playSound(400, 0.1, 'sawtooth');
+            };
+
+            const handleKeyPress = (e) => {
+                if (e.key === 'Enter') {
+                    addTask();
+                }
+            };
+
+            const completedCount = tasks.filter(task => task.completed).length;
+            const totalCount = tasks.length;
+
+            return (
+                <div className="max-w-md mx-auto">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 relative overflow-hidden">
+                        {/* Header */}
+                        <div className="text-center mb-8">
+                            <div className="mascot text-5xl mb-4">🐱✨</div>
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent mb-2">
+                                🌸 My Kawaii To-Do List 🌸
+                            </h1>
+                            <p className="text-gray-600">
+                                {totalCount === 0 ? 'Add your first magical task!' : 
+                                 `${completedCount}/${totalCount} tasks completed! ${completedCount === totalCount && totalCount > 0 ? '🎉' : '💪'}`}
+                            </p>
+                        </div>
+
+                        {/* Add Task Input */}
+                        <div className="flex space-x-3 mb-6">
+                            <input
+                                type="text"
+                                value={newTask}
+                                onChange={(e) => setNewTask(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                                placeholder="Add something magical... 🦄✨"
+                                className="kawaii-input flex-1 p-3 rounded-2xl border-2 border-pink-200 focus:border-pink-400 focus:outline-none"
+                                maxLength={100}
+                            />
+                            <button
+                                onClick={addTask}
+                                className="social-btn bg-gradient-to-r from-pink-400 to-pink-500 text-white px-6 py-3 rounded-2xl font-semibold hover:from-pink-500 hover:to-pink-600"
+                            >
+                                ✨ Add
+                            </button>
+                        </div>
+
+                        {/* Tasks List */}
+                        <div className="space-y-3 mb-6 max-h-96 overflow-y-auto">
+                            {tasks.length === 0 ? (
+                                <div className="text-center py-12">
+                                    <div className="text-6xl mb-4 sparkle">🦋</div>
+                                    <p className="text-gray-500 text-lg font-semibold">You're free like a butterfly!</p>
+                                    <p className="text-gray-400">Add some magical tasks above ✨</p>
+                                </div>
+                            ) : (
+                                <ul className="space-y-3">
+                                    {tasks.map(task => (
+                                        <TaskItem
+                                            key={task.id}
+                                            task={task}
+                                            onToggle={toggleTask}
+                                            onEdit={editTask}
+                                            onDelete={deleteTask}
+                                        />
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+
+                        {/* Stats */}
+                        {tasks.length > 0 && (
+                            <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl p-4 mb-6">
+                                <div className="flex justify-around text-center">
+                                    <div>
+                                        <div className="text-2xl font-bold text-pink-500">{totalCount}</div>
+                                        <div className="text-sm text-gray-600">Total</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-2xl font-bold text-green-500">{completedCount}</div>
+                                        <div className="text-sm text-gray-600">Done</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-2xl font-bold text-purple-500">{totalCount - completedCount}</div>
+                                        <div className="text-sm text-gray-600">Left</div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Logout Button */}
+                        <button
+                            onClick={onLogout}
+                            className="social-btn w-full bg-gradient-to-r from-purple-400 to-purple-500 text-white py-3 rounded-2xl font-semibold"
+                        >
+                            🌙 Sweet Dreams (Logout)
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // Main App Component
+        const App = () => {
+            const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+            const handleLogin = () => {
+                setIsLoggedIn(true);
+            };
+
+            const handleLogout = () => {
+                setIsLoggedIn(false);
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center p-4">
+                    <FloatingHearts />
+                    {isLoggedIn ? (
+                        <TodoPage onLogout={handleLogout} />
+                    ) : (
+                        <SignInPage onLogin={handleLogin} />
+                    )}
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
 </body>
 </html>
