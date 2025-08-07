@@ -8,6 +8,8 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -43,6 +45,15 @@
             cursor: grab;
             transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             user-select: none;
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .puzzle-piece:active {
@@ -59,12 +70,30 @@
             border: 3px dashed #f472b6;
             background: rgba(244, 114, 182, 0.1);
             transition: all 0.3s ease;
+            border-radius: 20px;
         }
 
         .puzzle-drop-zone.active {
             border-color: #ec4899;
             background: rgba(236, 72, 153, 0.2);
             transform: scale(1.02);
+        }
+
+        .puzzle-slot {
+            width: 70px;
+            height: 70px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            border: 2px dashed #f472b6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(244, 114, 182, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .puzzle-slot.filled {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
         }
 
         .task-item {
@@ -107,29 +136,12 @@
             50% { opacity: 0.7; transform: scale(1.1); }
         }
 
-        .confetti {
-            position: fixed;
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        @keyframes confetti-fall {
-            0% {
-                transform: translateY(-100vh) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(100vh) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
         .social-btn {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .social-btn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-2px) scale(1.05);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
 
@@ -172,11 +184,80 @@
             50% { transform: translateX(-5px) translateY(-10px); }
             75% { transform: translateX(-10px) translateY(5px); }
         }
+
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            color: #ec4899;
+        }
+
+        .nav-link.active {
+            color: #ec4899;
+            border-bottom: 2px solid #ec4899;
+        }
+
+        .hamburger {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            .nav-menu.active {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(251, 207, 232, 0.95);
+                backdrop-filter: blur(10px);
+                border-radius: 0 0 20px 20px;
+                padding: 1rem;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            }
+            .hamburger {
+                display: block;
+            }
+        }
+
+        .page-transition {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day:hover {
+            transform: scale(1.1);
+            background: rgba(244, 114, 182, 0.2);
+        }
     </style>
 </head>
 <body>
     <div class="floating-hearts" id="floating-hearts"></div>
-    <div id="root" class="min-h-screen flex items-center justify-center p-4"></div>
+    <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
@@ -227,44 +308,26 @@
 
         // Confetti animation
         const createConfetti = () => {
-            const colors = ['#ff6b9d', '#fce2e6', '#a8e6cf', '#dda0dd', '#ffb6c1'];
-            const emojis = ['✨', '🌟', '💖', '🎉', '🌸', '🦋'];
-            
-            for (let i = 0; i < 50; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    
-                    if (Math.random() > 0.5) {
-                        confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                        confetti.style.fontSize = Math.random() * 20 + 15 + 'px';
-                    } else {
-                        confetti.style.width = Math.random() * 10 + 5 + 'px';
-                        confetti.style.height = confetti.style.width;
-                        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                        confetti.style.borderRadius = '50%';
-                    }
-                    
-                    confetti.style.left = Math.random() * 100 + 'vw';
-                    confetti.style.animation = 'confetti-fall ' + (Math.random() * 3 + 2) + 's linear forwards';
-                    
-                    document.body.appendChild(confetti);
-                    
-                    setTimeout(() => {
-                        confetti.remove();
-                    }, 5000);
-                }, i * 30);
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#ff6b9d', '#fce2e6', '#a8e6cf', '#dda0dd', '#ffb6c1']
+                });
             }
         };
 
         // Puzzle Piece Component
-        const PuzzlePiece = ({ piece, onDrag, onDrop }) => {
+        const PuzzlePiece = ({ piece, onDragStart, onDragEnd }) => {
             const [isDragging, setIsDragging] = useState(false);
             const [position, setPosition] = useState({ x: piece.startX, y: piece.startY });
             const pieceRef = useRef(null);
 
             const handleMouseDown = (e) => {
                 setIsDragging(true);
+                onDragStart(piece.id);
+                
                 const rect = pieceRef.current.getBoundingClientRect();
                 const offsetX = e.clientX - rect.left;
                 const offsetY = e.clientY - rect.top;
@@ -273,12 +336,11 @@
                     const newX = e.clientX - offsetX;
                     const newY = e.clientY - offsetY;
                     setPosition({ x: newX, y: newY });
-                    onDrag(piece.id, newX, newY);
                 };
 
-                const handleMouseUp = () => {
+                const handleMouseUp = (e) => {
                     setIsDragging(false);
-                    onDrop(piece.id, position.x, position.y);
+                    onDragEnd(piece.id, e.clientX, e.clientY);
                     document.removeEventListener('mousemove', handleMouseMove);
                     document.removeEventListener('mouseup', handleMouseUp);
                 };
@@ -290,7 +352,7 @@
             return (
                 <div
                     ref={pieceRef}
-                    className={`puzzle-piece absolute w-16 h-16 rounded-full flex items-center justify-center text-2xl select-none ${isDragging ? 'z-50' : 'z-10'}`}
+                    className={`puzzle-piece ${isDragging ? 'z-50' : 'z-10'}`}
                     style={{
                         left: position.x,
                         top: position.y,
@@ -304,34 +366,122 @@
             );
         };
 
+        // Header Component
+        const Header = ({ currentPage, onNavigate, onLogout }) => {
+            const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+            const navItems = [
+                { id: 'home', label: 'Home', icon: 'fas fa-home' },
+                { id: 'bin', label: 'Bin', icon: 'fas fa-trash' },
+                { id: 'notes', label: 'Notes', icon: 'fas fa-sticky-note' },
+                { id: 'schedule', label: 'Schedule', icon: 'fas fa-calendar' },
+                { id: 'todo', label: 'To-Do List', icon: 'fas fa-list' },
+                { id: 'settings', label: 'Settings', icon: 'fas fa-cog' }
+            ];
+
+            return (
+                <header className="fixed top-0 left-0 right-0 z-40 bg-pink-200/90 backdrop-blur-sm shadow-lg">
+                    <div className="max-w-6xl mx-auto px-4">
+                        <div className="flex items-center justify-between h-16">
+                            <div className="flex items-center space-x-2">
+                                <span className="text-2xl">🌸</span>
+                                <h1 className="text-xl font-bold text-pink-600">Kawaii To-Do</h1>
+                            </div>
+
+                            {/* Desktop Navigation */}
+                            <nav className="nav-menu flex items-center space-x-6">
+                                {navItems.map(item => (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => onNavigate(item.id)}
+                                        className={`nav-link flex items-center space-x-2 px-3 py-2 rounded-lg ${
+                                            currentPage === item.id ? 'active' : ''
+                                        }`}
+                                    >
+                                        <i className={item.icon}></i>
+                                        <span>{item.label}</span>
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={onLogout}
+                                    className="nav-link flex items-center space-x-2 px-3 py-2 rounded-lg text-red-500 hover:text-red-600"
+                                >
+                                    <i className="fas fa-sign-out-alt"></i>
+                                    <span>Logout</span>
+                                </button>
+                            </nav>
+
+                            {/* Mobile Hamburger */}
+                            <button
+                                className="hamburger text-pink-600"
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            >
+                                <i className="fas fa-bars text-xl"></i>
+                            </button>
+
+                            {/* Mobile Navigation */}
+                            {mobileMenuOpen && (
+                                <nav className="nav-menu active">
+                                    {navItems.map(item => (
+                                        <button
+                                            key={item.id}
+                                            onClick={() => {
+                                                onNavigate(item.id);
+                                                setMobileMenuOpen(false);
+                                            }}
+                                            className={`nav-link flex items-center space-x-2 px-3 py-2 rounded-lg ${
+                                                currentPage === item.id ? 'active' : ''
+                                            }`}
+                                        >
+                                            <i className={item.icon}></i>
+                                            <span>{item.label}</span>
+                                        </button>
+                                    ))}
+                                    <button
+                                        onClick={() => {
+                                            onLogout();
+                                            setMobileMenuOpen(false);
+                                        }}
+                                        className="nav-link flex items-center space-x-2 px-3 py-2 rounded-lg text-red-500 hover:text-red-600"
+                                    >
+                                        <i className="fas fa-sign-out-alt"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </nav>
+                            )}
+                        </div>
+                    </div>
+                </header>
+            );
+        };
+
         // Sign In Page Component
         const SignInPage = ({ onLogin }) => {
             const [puzzlePieces, setPuzzlePieces] = useState([
-                { id: 1, emoji: '💖', color: 'linear-gradient(135deg, #ff6b9d, #ff8fab)', startX: 50, startY: 50, targetX: 100, targetY: 100 },
-                { id: 2, emoji: '✨', color: 'linear-gradient(135deg, #a8e6cf, #88d8a3)', startX: 200, startY: 80, targetX: 180, targetY: 100 },
-                { id: 3, emoji: '🌸', color: 'linear-gradient(135deg, #dda0dd, #d8bfd8)', startX: 80, startY: 200, targetX: 100, targetY: 180 },
-                { id: 4, emoji: '🦋', color: 'linear-gradient(135deg, #ffb6c1, #ffc0cb)', startX: 220, startY: 220, targetX: 180, targetY: 180 }
+                { id: 1, emoji: '💖', color: 'linear-gradient(135deg, #ff6b9d, #ff8fab)', startX: 50, startY: 300, targetX: 150, targetY: 150, solved: false },
+                { id: 2, emoji: '✨', color: 'linear-gradient(135deg, #a8e6cf, #88d8a3)', startX: 200, startY: 320, targetX: 230, targetY: 150, solved: false },
+                { id: 3, emoji: '🌸', color: 'linear-gradient(135deg, #dda0dd, #d8bfd8)', startX: 80, startY: 400, targetX: 150, targetY: 230, solved: false },
+                { id: 4, emoji: '🦋', color: 'linear-gradient(135deg, #ffb6c1, #ffc0cb)', startX: 250, startY: 420, targetX: 230, targetY: 230, solved: false }
             ]);
             const [puzzleSolved, setPuzzleSolved] = useState(false);
             const [email, setEmail] = useState('');
             const [password, setPassword] = useState('');
+            const [draggedPiece, setDraggedPiece] = useState(null);
 
-            const handlePuzzleDrag = (pieceId, x, y) => {
-                setPuzzlePieces(prev => 
-                    prev.map(piece => 
-                        piece.id === pieceId ? { ...piece, currentX: x, currentY: y } : piece
-                    )
-                );
+            const handleDragStart = (pieceId) => {
+                setDraggedPiece(pieceId);
             };
 
-            const handlePuzzleDrop = (pieceId, x, y) => {
+            const handleDragEnd = (pieceId, clientX, clientY) => {
                 const piece = puzzlePieces.find(p => p.id === pieceId);
-                const tolerance = 30;
+                const tolerance = 40;
                 
-                if (Math.abs(x - piece.targetX) < tolerance && Math.abs(y - piece.targetY) < tolerance) {
+                if (Math.abs(clientX - (piece.targetX + 30)) < tolerance && 
+                    Math.abs(clientY - (piece.targetY + 30)) < tolerance) {
+                    
                     setPuzzlePieces(prev => 
                         prev.map(p => 
-                            p.id === pieceId ? { ...p, solved: true, currentX: piece.targetX, currentY: piece.targetY } : p
+                            p.id === pieceId ? { ...p, solved: true } : p
                         )
                     );
                     
@@ -354,6 +504,7 @@
                         }, 1500);
                     }
                 }
+                setDraggedPiece(null);
             };
 
             const handleSocialLogin = (platform) => {
@@ -371,108 +522,152 @@
             };
 
             return (
-                <div className="max-w-md mx-auto">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 relative overflow-hidden">
-                        {/* Floating clouds */}
-                        <div className="cloud absolute -top-4 -left-4 w-16 h-16 bg-white/50 rounded-full"></div>
-                        <div className="cloud absolute -top-2 -right-6 w-12 h-12 bg-white/40 rounded-full"></div>
-                        <div className="cloud absolute -bottom-4 left-1/2 w-20 h-20 bg-white/30 rounded-full"></div>
+                <div className="min-h-screen flex items-center justify-center p-4">
+                    <div className="max-w-md mx-auto">
+                        <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 relative overflow-hidden">
+                            {/* Floating clouds */}
+                            <div className="cloud absolute -top-4 -left-4 w-16 h-16 bg-white/50 rounded-full"></div>
+                            <div className="cloud absolute -top-2 -right-6 w-12 h-12 bg-white/40 rounded-full"></div>
+                            <div className="cloud absolute -bottom-4 left-1/2 w-20 h-20 bg-white/30 rounded-full"></div>
 
-                        <div className="text-center mb-8">
-                            <div className="mascot text-6xl mb-4">🐱</div>
-                            <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent mb-2">
-                                Kawaii Sign-In
-                            </h1>
-                            <p className="text-gray-600 sparkle">✨ Solve the puzzle to unlock your magical to-do list! ✨</p>
-                        </div>
+                            <div className="text-center mb-8">
+                                <div className="mascot text-6xl mb-4">🐱</div>
+                                <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent mb-2">
+                                    Kawaii Sign-In
+                                </h1>
+                                <p className="text-gray-600 sparkle">✨ Solve the puzzle to unlock your magical to-do list! ✨</p>
+                            </div>
 
-                        {/* Puzzle Section */}
-                        <div className="relative mb-8">
-                            <div className="puzzle-drop-zone w-80 h-64 mx-auto rounded-2xl relative mb-6">
-                                <div className="absolute inset-4 grid grid-cols-2 gap-4">
-                                    <div className="bg-pink-100/50 rounded-xl flex items-center justify-center text-gray-400">
-                                        {puzzlePieces[0]?.solved ? '💖' : '?'}
+                            {/* Puzzle Section */}
+                            <div className="relative mb-8">
+                                <div className="puzzle-drop-zone w-80 h-64 mx-auto rounded-2xl relative mb-6">
+                                    <div className="absolute inset-4 grid grid-cols-2 gap-4">
+                                        <div className={`puzzle-slot ${puzzlePieces[0]?.solved ? 'filled' : ''}`}>
+                                            {puzzlePieces[0]?.solved ? '💖' : '?'}
+                                        </div>
+                                        <div className={`puzzle-slot ${puzzlePieces[1]?.solved ? 'filled' : ''}`}>
+                                            {puzzlePieces[1]?.solved ? '✨' : '?'}
+                                        </div>
+                                        <div className={`puzzle-slot ${puzzlePieces[2]?.solved ? 'filled' : ''}`}>
+                                            {puzzlePieces[2]?.solved ? '🌸' : '?'}
+                                        </div>
+                                        <div className={`puzzle-slot ${puzzlePieces[3]?.solved ? 'filled' : ''}`}>
+                                            {puzzlePieces[3]?.solved ? '🦋' : '?'}
+                                        </div>
                                     </div>
-                                    <div className="bg-green-100/50 rounded-xl flex items-center justify-center text-gray-400">
-                                        {puzzlePieces[1]?.solved ? '✨' : '?'}
-                                    </div>
-                                    <div className="bg-purple-100/50 rounded-xl flex items-center justify-center text-gray-400">
-                                        {puzzlePieces[2]?.solved ? '🌸' : '?'}
-                                    </div>
-                                    <div className="bg-pink-100/50 rounded-xl flex items-center justify-center text-gray-400">
-                                        {puzzlePieces[3]?.solved ? '🦋' : '?'}
-                                    </div>
+                                    
+                                    {puzzlePieces.map(piece => (
+                                        !piece.solved && (
+                                            <PuzzlePiece
+                                                key={piece.id}
+                                                piece={piece}
+                                                onDragStart={handleDragStart}
+                                                onDragEnd={handleDragEnd}
+                                            />
+                                        )
+                                    ))}
                                 </div>
                                 
-                                {puzzlePieces.map(piece => (
-                                    !piece.solved && (
-                                        <PuzzlePiece
-                                            key={piece.id}
-                                            piece={piece}
-                                            onDrag={handlePuzzleDrag}
-                                            onDrop={handlePuzzleDrop}
-                                        />
-                                    )
-                                ))}
+                                {puzzleSolved && (
+                                    <div className="text-center text-green-500 font-bold text-xl bounce">
+                                        🎉 Puzzle Solved! Welcome! 🎉
+                                    </div>
+                                )}
                             </div>
-                            
-                            {puzzleSolved && (
-                                <div className="text-center text-green-500 font-bold text-xl bounce">
-                                    🎉 Puzzle Solved! Welcome! 🎉
-                                </div>
-                            )}
-                        </div>
 
-                        {/* Social Login Buttons */}
-                        <div className="space-y-3 mb-6">
-                            <button
-                                onClick={() => handleSocialLogin('google')}
-                                className="social-btn w-full bg-gradient-to-r from-red-400 to-red-500 text-white py-3 rounded-2xl font-semibold flex items-center justify-center space-x-3"
-                            >
-                                <span className="text-xl">🐻</span>
-                                <span>Continue with Google</span>
-                            </button>
-                            <button
-                                onClick={() => handleSocialLogin('github')}
-                                className="social-btn w-full bg-gradient-to-r from-gray-700 to-gray-800 text-white py-3 rounded-2xl font-semibold flex items-center justify-center space-x-3"
-                            >
-                                <span className="text-xl">😺</span>
-                                <span>Continue with GitHub</span>
-                            </button>
-                            <button
-                                onClick={() => handleSocialLogin('facebook')}
-                                className="social-btn w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-2xl font-semibold flex items-center justify-center space-x-3"
-                            >
-                                <span className="text-xl">🐰</span>
-                                <span>Continue with Facebook</span>
-                            </button>
-                        </div>
-
-                        {/* Email/Password Login */}
-                        <div className="border-t border-gray-200 pt-6">
-                            <p className="text-center text-gray-500 mb-4">Or sign in with email</p>
-                            <div className="space-y-3">
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="✉️ Your cute email"
-                                    className="kawaii-input w-full p-3 rounded-2xl border-2 border-pink-200 focus:border-pink-400 focus:outline-none"
-                                />
-                                <input
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="🔒 Secret password"
-                                    className="kawaii-input w-full p-3 rounded-2xl border-2 border-pink-200 focus:border-pink-400 focus:outline-none"
-                                />
+                            {/* Social Login Buttons */}
+                            <div className="space-y-3 mb-6">
                                 <button
-                                    onClick={handleEmailLogin}
-                                    className="social-btn w-full bg-gradient-to-r from-purple-400 to-purple-500 text-white py-3 rounded-2xl font-semibold"
+                                    onClick={() => handleSocialLogin('google')}
+                                    className="social-btn w-full bg-gradient-to-r from-red-400 to-red-500 text-white py-3 rounded-2xl font-semibold flex items-center justify-center space-x-3"
                                 >
-                                    Sign In 🌸
+                                    <i className="fab fa-google text-xl"></i>
+                                    <span>Continue with Google</span>
+                                </button>
+                                <button
+                                    onClick={() => handleSocialLogin('github')}
+                                    className="social-btn w-full bg-gradient-to-r from-gray-700 to-gray-800 text-white py-3 rounded-2xl font-semibold flex items-center justify-center space-x-3"
+                                >
+                                    <i className="fab fa-github text-xl"></i>
+                                    <span>Continue with GitHub</span>
+                                </button>
+                                <button
+                                    onClick={() => handleSocialLogin('facebook')}
+                                    className="social-btn w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-2xl font-semibold flex items-center justify-center space-x-3"
+                                >
+                                    <i className="fab fa-facebook text-xl"></i>
+                                    <span>Continue with Facebook</span>
                                 </button>
                             </div>
+
+                            {/* Email/Password Login */}
+                            <div className="border-t border-gray-200 pt-6">
+                                <p className="text-center text-gray-500 mb-4">Or sign in with email</p>
+                                <div className="space-y-3">
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="✉️ Your cute email"
+                                        className="kawaii-input w-full p-3 rounded-2xl border-2 border-pink-200 focus:border-pink-400 focus:outline-none"
+                                    />
+                                    <input
+                                        type="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="🔒 Secret password"
+                                        className="kawaii-input w-full p-3 rounded-2xl border-2 border-pink-200 focus:border-pink-400 focus:outline-none"
+                                    />
+                                    <button
+                                        onClick={handleEmailLogin}
+                                        className="social-btn w-full bg-gradient-to-r from-purple-400 to-purple-500 text-white py-3 rounded-2xl font-semibold"
+                                    >
+                                        Sign In 🌸
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Home Page Component
+        const HomePage = () => {
+            return (
+                <div className="page-transition max-w-4xl mx-auto p-6">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 text-center">
+                        <div className="mascot text-8xl mb-6">🐰</div>
+                        <h1 className="text-5xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent mb-4">
+                            Welcome to Your Kawaii World! 🌸
+                        </h1>
+                        <p className="text-xl text-gray-600 mb-8">
+                            Your magical productivity companion is here to make every task adorable! ✨
+                        </p>
+                        
+                        <div className="grid md:grid-cols-3 gap-6 mb-8">
+                            <div className="bg-pink-100 rounded-2xl p-6">
+                                <div className="text-4xl mb-3">📝</div>
+                                <h3 className="font-bold text-pink-600 mb-2">Organize Tasks</h3>
+                                <p className="text-gray-600">Keep track of all your cute to-dos!</p>
+                            </div>
+                            <div className="bg-purple-100 rounded-2xl p-6">
+                                <div className="text-4xl mb-3">📅</div>
+                                <h3 className="font-bold text-purple-600 mb-2">Plan Your Days</h3>
+                                <p className="text-gray-600">Schedule your kawaii adventures!</p>
+                            </div>
+                            <div className="bg-green-100 rounded-2xl p-6">
+                                <div className="text-4xl mb-3">🎯</div>
+                                <h3 className="font-bold text-green-600 mb-2">Achieve Goals</h3>
+                                <p className="text-gray-600">Complete tasks with sparkles!</p>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-center space-x-4">
+                            <span className="sparkle text-2xl">⭐</span>
+                            <span className="sparkle text-2xl" style={{animationDelay: '0.5s'}}>✨</span>
+                            <span className="sparkle text-2xl" style={{animationDelay: '1s'}}>🌟</span>
+                            <span className="sparkle text-2xl" style={{animationDelay: '1.5s'}}>💫</span>
                         </div>
                     </div>
                 </div>
@@ -533,14 +728,14 @@
                                 className="text-blue-500 hover:text-blue-700 hover:scale-110 transition-all"
                                 title="Edit task"
                             >
-                                ✏️
+                                <i className="fas fa-edit"></i>
                             </button>
                             <button
                                 onClick={() => onDelete(task.id)}
                                 className="text-red-500 hover:text-red-700 hover:scale-110 transition-all"
                                 title="Delete task"
                             >
-                                🗑️
+                                <i className="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
@@ -549,7 +744,7 @@
         };
 
         // Todo Page Component
-        const TodoPage = ({ onLogout }) => {
+        const TodoPage = () => {
             const [tasks, setTasks] = useState([]);
             const [newTask, setNewTask] = useState('');
 
@@ -612,8 +807,8 @@
             const totalCount = tasks.length;
 
             return (
-                <div className="max-w-md mx-auto">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 relative overflow-hidden">
+                <div className="page-transition max-w-2xl mx-auto p-6">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8">
                         {/* Header */}
                         <div className="text-center mb-8">
                             <div className="mascot text-5xl mb-4">🐱✨</div>
@@ -639,9 +834,10 @@
                             />
                             <button
                                 onClick={addTask}
-                                className="social-btn bg-gradient-to-r from-pink-400 to-pink-500 text-white px-6 py-3 rounded-2xl font-semibold hover:from-pink-500 hover:to-pink-600"
+                                className="social-btn bg-gradient-to-r from-pink-400 to-pink-500 text-white px-6 py-3 rounded-2xl font-semibold hover:from-pink-500 hover:to-pink-600 flex items-center space-x-2"
                             >
-                                ✨ Add
+                                <i className="fas fa-heart"></i>
+                                <span>Add</span>
                             </button>
                         </div>
 
@@ -670,7 +866,7 @@
 
                         {/* Stats */}
                         {tasks.length > 0 && (
-                            <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl p-4 mb-6">
+                            <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl p-4">
                                 <div className="flex justify-around text-center">
                                     <div>
                                         <div className="text-2xl font-bold text-pink-500">{totalCount}</div>
@@ -687,14 +883,212 @@
                                 </div>
                             </div>
                         )}
+                    </div>
+                </div>
+            );
+        };
 
-                        {/* Logout Button */}
-                        <button
-                            onClick={onLogout}
-                            className="social-btn w-full bg-gradient-to-r from-purple-400 to-purple-500 text-white py-3 rounded-2xl font-semibold"
-                        >
-                            🌙 Sweet Dreams (Logout)
-                        </button>
+        // Bin Page Component
+        const BinPage = () => {
+            return (
+                <div className="page-transition max-w-2xl mx-auto p-6">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 text-center">
+                        <div className="text-8xl mb-6">🗑️</div>
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-500 to-gray-700 bg-clip-text text-transparent mb-4">
+                            Deleted Tasks Go Here!
+                        </h1>
+                        <p className="text-xl text-gray-600 mb-8">
+                            Your deleted tasks would appear here for recovery! 💫
+                        </p>
+                        <div className="bg-gray-100 rounded-2xl p-8">
+                            <p className="text-gray-500">No deleted tasks yet! Keep your workspace clean! ✨</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Notes Page Component
+        const NotesPage = () => {
+            const [note, setNote] = useState('');
+
+            return (
+                <div className="page-transition max-w-2xl mx-auto p-6">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8">
+                        <div className="text-center mb-8">
+                            <div className="text-6xl mb-4">📝</div>
+                            <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent mb-4">
+                                Jot Down Your Cute Ideas Here!
+                            </h1>
+                            <p className="text-gray-600">Write your thoughts, dreams, and kawaii inspirations! ✨</p>
+                        </div>
+
+                        <textarea
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                            placeholder="Write something magical... 🌟"
+                            className="kawaii-input w-full h-64 p-4 rounded-2xl border-2 border-yellow-200 focus:border-yellow-400 focus:outline-none resize-none"
+                        />
+
+                        <div className="mt-4 flex justify-between items-center">
+                            <span className="text-gray-500 text-sm">{note.length} characters</span>
+                            <button className="social-btn bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-6 py-2 rounded-xl font-semibold">
+                                <i className="fas fa-save mr-2"></i>
+                                Save Note
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Schedule Page Component
+        const SchedulePage = () => {
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            const calendarDays = [];
+            
+            // Empty cells for days before the first day of the month
+            for (let i = 0; i < firstDay; i++) {
+                calendarDays.push(null);
+            }
+            
+            // Days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                calendarDays.push(day);
+            }
+
+            return (
+                <div className="page-transition max-w-4xl mx-auto p-6">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8">
+                        <div className="text-center mb-8">
+                            <div className="text-6xl mb-4">📅</div>
+                            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent mb-4">
+                                Plan Your Kawaii Days!
+                            </h1>
+                            <p className="text-gray-600">Schedule your magical adventures and important dates! ✨</p>
+                        </div>
+
+                        <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-6">
+                            <h2 className="text-2xl font-bold text-center mb-6 text-blue-600">
+                                {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                            </h2>
+                            
+                            <div className="calendar-grid mb-4">
+                                {daysOfWeek.map(day => (
+                                    <div key={day} className="text-center font-bold text-blue-600 p-2">
+                                        {day}
+                                    </div>
+                                ))}
+                            </div>
+                            
+                            <div className="calendar-grid">
+                                {calendarDays.map((day, index) => (
+                                    <div
+                                        key={index}
+                                        className={`calendar-day ${day ? 'bg-white/50 hover:bg-pink-100' : ''} ${
+                                            day === currentDate.getDate() ? 'bg-pink-200 font-bold' : ''
+                                        }`}
+                                    >
+                                        {day}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="mt-6 text-center">
+                            <p className="text-gray-500">Click on any date to add kawaii events! 🌸</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Settings Page Component
+        const SettingsPage = () => {
+            const [darkMode, setDarkMode] = useState(false);
+            const [notifications, setNotifications] = useState(true);
+            const [soundEffects, setSoundEffects] = useState(true);
+
+            return (
+                <div className="page-transition max-w-2xl mx-auto p-6">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8">
+                        <div className="text-center mb-8">
+                            <div className="text-6xl mb-4">⚙️</div>
+                            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent mb-4">
+                                Customize Your Kawaii Experience!
+                            </h1>
+                            <p className="text-gray-600">Make the app perfectly yours! ✨</p>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="bg-purple-100 rounded-2xl p-6">
+                                <h3 className="text-xl font-bold text-purple-600 mb-4">Appearance</h3>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-700">🌙 Dark Mode</span>
+                                    <button
+                                        onClick={() => setDarkMode(!darkMode)}
+                                        className={`w-12 h-6 rounded-full transition-colors ${
+                                            darkMode ? 'bg-purple-500' : 'bg-gray-300'
+                                        }`}
+                                    >
+                                        <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                                            darkMode ? 'translate-x-6' : 'translate-x-1'
+                                        }`}></div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="bg-pink-100 rounded-2xl p-6">
+                                <h3 className="text-xl font-bold text-pink-600 mb-4">Notifications</h3>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-700">🔔 Task Reminders</span>
+                                    <button
+                                        onClick={() => setNotifications(!notifications)}
+                                        className={`w-12 h-6 rounded-full transition-colors ${
+                                            notifications ? 'bg-pink-500' : 'bg-gray-300'
+                                        }`}
+                                    >
+                                        <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                                            notifications ? 'translate-x-6' : 'translate-x-1'
+                                        }`}></div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="bg-green-100 rounded-2xl p-6">
+                                <h3 className="text-xl font-bold text-green-600 mb-4">Audio</h3>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-700">🔊 Sound Effects</span>
+                                    <button
+                                        onClick={() => setSoundEffects(!soundEffects)}
+                                        className={`w-12 h-6 rounded-full transition-colors ${
+                                            soundEffects ? 'bg-green-500' : 'bg-gray-300'
+                                        }`}
+                                    >
+                                        <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                                            soundEffects ? 'translate-x-6' : 'translate-x-1'
+                                        }`}></div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="bg-yellow-100 rounded-2xl p-6">
+                                <h3 className="text-xl font-bold text-yellow-600 mb-4">Theme Colors</h3>
+                                <div className="flex space-x-4 justify-center">
+                                    <button className="w-8 h-8 bg-pink-400 rounded-full hover:scale-110 transition-transform"></button>
+                                    <button className="w-8 h-8 bg-purple-400 rounded-full hover:scale-110 transition-transform"></button>
+                                    <button className="w-8 h-8 bg-blue-400 rounded-full hover:scale-110 transition-transform"></button>
+                                    <button className="w-8 h-8 bg-green-400 rounded-full hover:scale-110 transition-transform"></button>
+                                    <button className="w-8 h-8 bg-yellow-400 rounded-full hover:scale-110 transition-transform"></button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             );
@@ -703,20 +1097,55 @@
         // Main App Component
         const App = () => {
             const [isLoggedIn, setIsLoggedIn] = useState(false);
+            const [currentPage, setCurrentPage] = useState('home');
 
             const handleLogin = () => {
                 setIsLoggedIn(true);
+                setCurrentPage('home');
             };
 
             const handleLogout = () => {
                 setIsLoggedIn(false);
+                setCurrentPage('home');
+            };
+
+            const handleNavigate = (page) => {
+                setCurrentPage(page);
+            };
+
+            const renderPage = () => {
+                switch (currentPage) {
+                    case 'home':
+                        return <HomePage />;
+                    case 'bin':
+                        return <BinPage />;
+                    case 'notes':
+                        return <NotesPage />;
+                    case 'schedule':
+                        return <SchedulePage />;
+                    case 'todo':
+                        return <TodoPage />;
+                    case 'settings':
+                        return <SettingsPage />;
+                    default:
+                        return <HomePage />;
+                }
             };
 
             return (
-                <div className="min-h-screen flex items-center justify-center p-4">
+                <div className="min-h-screen">
                     <FloatingHearts />
                     {isLoggedIn ? (
-                        <TodoPage onLogout={handleLogout} />
+                        <>
+                            <Header 
+                                currentPage={currentPage}
+                                onNavigate={handleNavigate}
+                                onLogout={handleLogout}
+                            />
+                            <main className="pt-20">
+                                {renderPage()}
+                            </main>
+                        </>
                     ) : (
                         <SignInPage onLogin={handleLogin} />
                     )}
